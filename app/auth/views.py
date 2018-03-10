@@ -6,6 +6,36 @@ from ..models import User
 from .forms import LoginForm, RegistrationForm, VerificationForm
 
 
+@auth.before_app_request
+def before_request():
+    if current_user.is_authenticated \
+            and not current_user.phone_number_confirmed \
+            and request.endpoint \
+            and request.endpoint[:5] != 'auth.' \
+            and request.endpoint != 'static':
+        return redirect(url_for('auth.unconfirmed'))
+
+
+@auth.route('/unconfirmed')
+def unconfirmed():
+    if current_user.is_anonymous or current_user.phone_number_confirmed:
+        return redirect(url_for('main.index'))
+    else:
+        form = VerificationForm()
+        
+        if form.validate_on_submit():
+            check = current_user.check_confirmation_code(form.code.data)
+            if check:
+                flash('Number confirmed!')
+                authy_user = current_user.create_authy_user()
+                if not authy_user:
+                    flash('Unable to create authy id')
+                flash('Authy ID created!')
+                return redirect(url_for('main.index'))
+            else:
+                flash('Code invalid or expired')
+                #return redirect(url_for('auth.unconfirmed'))
+    return render_template('auth/unconfirmed.html', form=form)
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -14,10 +44,27 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
-            return redirect(request.args.get('next') or url_for('main.index'))
+            if not current_user.phone_number_confirmed:
+                code = current_user.generate_confirmation_code()
+                flash('{}'.format(code['message']))
+                return redirect(url_for('auth.unconfirmed'))
+            else:
+                code = current_user.generate_2fa()
+                flash('{}'.format(code['message']))
+                return redirect(url_for('auth.verify'))
         flash('Invalid username or password.')
     return render_template('auth/login.html', form=form)
 
+@auth.route('/verify', methods=['GET', 'POST'])
+def verify():
+    form = VerificationForm()
+    if form.validate_on_submit():
+        check = current_user.check_2fa(form.code.data)
+        if check:
+            return redirect(request.args.get('next') or url_for('main.index'))
+        else:
+            flash("Token expired or incorrect!")
+    return render_template('auth/verify.html', form=form)
 
 @auth.route('/logout')
 @login_required
@@ -41,6 +88,6 @@ def register():
         db.session.add(user)
         db.session.commit()
         
-        flash('{}'.format(request.content['message']))
+        
         return redirect(url_for('auth.verify'))
     return render_template('auth/register.html', form=form)

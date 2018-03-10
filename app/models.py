@@ -90,7 +90,7 @@ class User(UserMixin, db.Model):
     def generate_confirmation_code(self):
         authy_api = AuthyApiClient(current_app.config['AUTHY_KEY'])
         request = authy_api.phones.verification_start(self.phone, self.country_code, via='sms')
-        print(request.content)
+        return request.content
 
 
     def check_confirmation_code(self, code):

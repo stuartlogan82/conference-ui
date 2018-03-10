@@ -47,6 +47,6 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Email already registered!')
 
 
-class VerificationForm():
+class VerificationForm(FlaskForm):
     code = StringField('Enter Code', validators=[Required(), Regexp('[0-9]*$', 0, 'Must be numbers only')])
     submit = SubmitField('Confirm!')
