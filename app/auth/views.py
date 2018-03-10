@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from . import auth
 from .. import db
 from ..models import User
-from .forms import LoginForm, RegistrationForm
+from .forms import LoginForm, RegistrationForm, VerificationForm
 
 
 
@@ -39,7 +39,7 @@ def register():
                     twilio_account_sid=form.twilio_sid.data,
                     twilio_auth_token=form.twilio_token.data)
         db.session.add(user)
-        app = current_app._get_current_object()
+        db.session.commit()
         
         flash('{}'.format(request.content['message']))
         return redirect(url_for('auth.verify'))

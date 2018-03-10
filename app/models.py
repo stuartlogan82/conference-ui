@@ -81,7 +81,7 @@ class User(UserMixin, db.Model):
     @twilio_auth_token.setter
     def twilio_auth_token(self, twilio_auth_token):
         self.twilio_auth_token_hash = generate_password_hash(twilio_auth_token)
-        
+
 
     def verify_twilio_auth_token(self, twilio_auth_token):
         return check_password_hash(self.twilio_auth_token_hash, twilio_auth_token)
@@ -113,7 +113,8 @@ class User(UserMixin, db.Model):
             db.session.add(self)
             return True
         else:
-            return user.errors()
+            print(user.errors())
+            return False
 
 
     def generate_2fa(self):

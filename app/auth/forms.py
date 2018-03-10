@@ -46,3 +46,7 @@ class RegistrationForm(FlaskForm):
         if User.query.filter_by(email=field.data).first():
             raise ValidationError('Email already registered!')
 
+
+class VerificationForm():
+    code = StringField('Enter Code', validators=[Required(), Regexp('[0-9]*$', 0, 'Must be numbers only')])
+    submit = SubmitField('Confirm!')
