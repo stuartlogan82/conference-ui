@@ -16,13 +16,12 @@ def before_request():
         return redirect(url_for('auth.unconfirmed'))
 
 
-@auth.route('/unconfirmed')
+@auth.route('/unconfirmed', methods=['GET', 'POST'])
 def unconfirmed():
     if current_user.is_anonymous or current_user.phone_number_confirmed:
         return redirect(url_for('main.index'))
     else:
         form = VerificationForm()
-        
         if form.validate_on_submit():
             check = current_user.check_confirmation_code(form.code.data)
             if check:
@@ -52,10 +51,12 @@ def login():
                 code = current_user.generate_2fa()
                 flash('{}'.format(code['message']))
                 return redirect(url_for('auth.verify'))
+    else:
         flash('Invalid username or password.')
     return render_template('auth/login.html', form=form)
 
 @auth.route('/verify', methods=['GET', 'POST'])
+@login_required
 def verify():
     form = VerificationForm()
     if form.validate_on_submit():
@@ -81,6 +82,7 @@ def resend_code():
 
 
 @auth.route('/resend_authy', methods=['POST'])
+@login_required
 def resend_authy():
     code = current_user.generate_2fa()
     print(code)
@@ -101,7 +103,7 @@ def register():
                     twilio_auth_token=form.twilio_token.data)
         db.session.add(user)
         db.session.commit()
+        flash('Registration Successful, you may now log in!')
         
-        
-        return redirect(url_for('auth.verify'))
+        return redirect(url_for('auth.login'))
     return render_template('auth/register.html', form=form)

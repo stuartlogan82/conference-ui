@@ -11,55 +11,49 @@
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='base.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='semantic/dist/semantic.min.css') }}">
-    <style>
-        a:visited {
-            text-decoration: none;
-
-        }
-        </style>
     {% endblock %}
 </head>
 <body>
     <div class="ui container large top secondary menu">
         <div class="header item">
-            <a href="{{ url_for('main.index') }}">
-                Stu's Conference UI
-            <!-- <img src="{{ url_for('static', filename='meeting64.png') }}" /> -->
-            </a>
+            <a class="ui large header" href="{{ url_for('main.index') }}">
+            <img src="{{ url_for('static', filename='marae.png') }}" />
+            The Marae</a>
         </div>
         <div class="right menu">
-            <div class="item">My Conferences</div>
             {% if current_user.is_authenticated %}
+            <div class="item"><a class="ui small header"><i class="users icon"></i>My Conferences</a></div>
+            <div class="item"><a class="ui small header"><i class="cog icon"></i>Settings</a></div>
             <div class="item">
-                <div class="ui red button">Sign Out
-                    <!-- <a style="text-decoration: none" href="{{ url_for('auth.logout') }}">Sign Out</a> -->
+                <div>
+                    <a class="ui red button" href="{{ url_for('auth.logout') }}">Sign Out</a>
                 </div>
             </div>
             {% else %}
 
             <div class="item">
-                <div class="ui red button">Sign In
-                    <!-- <a style="text-decoration: none" href="{{ url_for('auth.login') }}">Sign In</a> -->
+                <div>
+                    <a class="ui red button" href="{{ url_for('auth.login') }}">Sign In</a>
                 </div>
-                </div>
+            </div>
             {% endif %}
             
         </div>
     </div>
      {% block content %}
-    <!-- <div class="ui container"> -->
+    <!-- <div class="ui text container"> -->
         {% for message in get_flashed_messages() %}
-        <div class="ui floating warning message">
+        <div class="ui floating warning message text container">
             <i class="close icon"></i>
             {{ message }}
         </div>
-        {% endfor %}
-        <div class="ui text container">
-            <div class="ui segments">
-            {% block page_content %}{% endblock %}
-            </div>
-        </div>
     <!-- </div> -->
+        {% endfor %}
+    <div class="ui text container">
+        <div class="ui segments">
+        {% block page_content %}{% endblock %}
+        </div>
+    </div>
     {% endblock %}
     {% block scripts %}
     <!-- {{ moment.include_moment() }} -->

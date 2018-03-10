@@ -21,11 +21,8 @@
         </div>
     </form>
 </div>
-<div class="ui segment">
-    <p>New user? <a href="{{ url_for('auth.register') }}">Click here to register</a></p>
-</div>
 {% endblock %}
-{% scripts %}
+{% block scripts %}
 {{ super() }}
 <script src="https://unpkg.com/vue"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -47,3 +44,4 @@
         }
     })    
 </script>
+{% endblock %}
