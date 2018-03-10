@@ -1,0 +1,58 @@
+
+{% extends "base.html" %}
+
+{% macro with_errors(field) %}
+<div class="field">
+    {{ field.label }}
+    {% if field.errors %} 
+        {{ field(**kwargs) }}
+        <div class="ui pointing red label center aligned">
+        {% for error in field.errors %}
+            {{ error|e }}
+        {% endfor %}
+        </div>
+    {% else %} {{ field(**kwargs) }} {% endif %}
+</div>
+{% endmacro %}
+
+{% block title %}Conference UI - Register{% endblock %}
+
+{% block page_content %}
+
+<div class="ui segment">
+    <h1 class="ui center aligned header">Register</h1>
+
+    <form class="ui form" method="POST">
+        {{ form.hidden_tag() }}
+        
+        {{ with_errors(form.first_name) }}
+
+        {{ with_errors(form.last_name) }}
+        
+        {{ with_errors(form.email) }}
+       
+       {{ with_errors(form.password) }}
+       {{ with_errors(form.password2) }}
+    <label>Mobile</label>
+        <div class="inline fields">
+            
+            <div class="four wide field">
+                {{ form.country_code(class='ui fluid dropdown') }}
+            </div>
+            <div class="twelve wide field">
+                 {% if form.phone_number.errors %} 
+                 {{ form.phone_number}}
+
+                <div class="ui left pointing red label">
+                    {% for error in form.phone_number.errors %} {{ error }}{% endfor %}
+                </div>
+                {% else %} {{ form.phone_number}} {% endif %}
+                
+            </div>
+        </div>
+        {{ with_errors(form.twilio_sid) }}
+        {{ with_errors(form.twilio_token) }}
+        {{ form.submit(class='ui button') }}
+    </form>
+</div>
+{% endblock %}

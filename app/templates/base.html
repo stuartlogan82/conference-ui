@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% block head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='semantic/dist/semantic.min.css') }}">
+    <style>
+        a:visited {
+            text-decoration: none;
+
+        }
+        </style>
+    {% endblock %}
+</head>
+<body>
+    <div class="ui container large top secondary menu">
+        <div class="header item">
+            <a href="{{ url_for('main.index') }}">
+                Stu's Conference UI
+            <!-- <img src="{{ url_for('static', filename='meeting64.png') }}" /> -->
+            </a>
+        </div>
+        <div class="right menu">
+            <div class="item">My Conferences</div>
+            {% if current_user.is_authenticated %}
+            <div class="item">
+                <div class="ui red button">Sign Out
+                    <!-- <a style="text-decoration: none" href="{{ url_for('auth.logout') }}">Sign Out</a> -->
+                </div>
+            </div>
+            {% else %}
+
+            <div class="item">
+                <div class="ui red button">Sign In
+                    <!-- <a style="text-decoration: none" href="{{ url_for('auth.login') }}">Sign In</a> -->
+                </div>
+                </div>
+            {% endif %}
+            
+        </div>
+    </div>
+     {% block content %}
+    <!-- <div class="ui container"> -->
+        {% for message in get_flashed_messages() %}
+        <div class="ui floating warning message">
+            <i class="close icon"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+        <div class="ui text container">
+            <div class="ui segments">
+            {% block page_content %}{% endblock %}
+            </div>
+        </div>
+    <!-- </div> -->
+    {% endblock %}
+    {% block scripts %}
+    <!-- {{ moment.include_moment() }} -->
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+    crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='semantic/dist/semantic.min.js') }}"></script>
+    <script>
+        $('.message .close')
+                .on('click', function () {
+                    $(this)
+                        .closest('.message')
+                        .transition('fade')
+                        ;
+                })
+                ;
+    </script>
+    {% endblock %}
+</body>
+</html>

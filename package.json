@@ -1,0 +1,26 @@
+{
+  "name": "conference-ui",
+  "version": "1.0.0",
+  "description": "Dashboard and call control for your Twilio Conferences",
+  "main": "manage.py",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "semantic-ui": "^2.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stuartlogan82/conference-ui.git"
+  },
+  "author": "Stuart Logan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stuartlogan82/conference-ui/issues"
+  },
+  "homepage": "https://github.com/stuartlogan82/conference-ui#readme"
+}

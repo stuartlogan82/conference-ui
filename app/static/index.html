@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Conference</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.css">
+</head>
+
+<body>
+    <div class="ui raised very padded text container segment" id="active-conference">
+        <div class="ui segment raised">
+            <h1>Active Conference</h1>
+            <form class="ui form" name="add" v-on:submit.prevent>
+                
+                
+                <button class="ui basic button" v-on:click="newParticipant = !newParticipant">
+                    <i class="icon user"></i>
+                    Add Participant
+                </button>
+                <div v-if="newParticipant">
+                    <label>Participant Number</label>
+                    <input type="text" v-model="newParticipantNumber">
+                    <button class="ui basic button" v-on:click="dialParticipant">
+                        <i class="icon user"></i>Dial
+                    </button>
+                </div>
+            </form>
+            <table class="ui celled padded table">
+                <thead>
+                    <tr>
+                        <th>Speaking?</th>
+                        <th>Participant</th>
+                        <th>Controls</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(participant, index) in conferenceParticipants" :class="{ negative: participant.muted }">
+                        <td><i v-if="participant.speaking" class="comment icon"></i></td>
+                        <td>{{ participant.participantNumber }}</td>
+                        <td><i @click="muteParticipant(index)" class="circular red mute icon"></i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="ui segment raised">
+            <h2>Previous Conferences</h2>
+        <div class="ui accordion" v-for="(conference, index) in previousConferences">
+            <div class="title">
+                <i class="dropdown icon"></i> {{conference.friendlyName}}
+            </div>
+            <div class="content">
+                <p>Duration: {{ conference.duration }}</p>
+                <p v-for="(participant) in conference.participants">{{ participant }}</p>
+            </div>
+        </div>
+        </div>
+    </div>
+    
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+    crossorigin="anonymous"></script>
+    <script src="https://media.twiliocdn.com/sdk/js/sync/v0.6/twilio-sync.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.js"></script>
+    <script src="/static/index.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Conference UI - Login{% endblock %}
+
+{% block page_content %}
+<div class="ui segment">
+    <h1 class="ui header">Login</h1>
+    <form class="ui form" method="POST">
+        {{ form.hidden_tag() }}
+        <div class="field">
+            {{ form.email.label }} {{ form.email() }}
+        </div>
+        <div class="field">
+            {{ form.password.label }} {{ form.password() }}
+        </div>
+        <div class="inline fields">
+            <div class="field">
+            {{ form.remember_me(class='ui checkbox') }}
+            </div>
+            <div class="field">{{ form.remember_me.label }}</div>
+        </div>
+        {{ form.submit(class='ui button') }}
+    </form>
+</div>
+<div class="ui segment">
+    <p>New user? <a href="{{ url_for('auth.register') }}">Click here to register</a></p>
+</div>
+{% endblock %}
