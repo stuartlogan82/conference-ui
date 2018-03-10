@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}The Marae - Confirm{% endblock %}
+
+{% block page_content %}
+<div class="ui segment" id="confirm">
+    <h1 class="ui header">Enter Confirmation Code</h1>
+    <form class="ui form" method="POST">
+        {{ form.hidden_tag() }}
+        <div class="field">
+            {{ form.code() }}
+        </div>
+        <div class="inline fields">
+            <div class="field">
+                 {{ form.submit(class='ui primary button') }}
+            </div>
+            <div class="field">
+                <div class="ui button" @click="resendCode">Resend Code</div>
+            </div>
+        <div v-if="message" class="ui message">
+            {% raw %}{{ message }}{% endraw %}
+        </div>
+    </form>
+</div>
+<div class="ui segment">
+    <p>New user? <a href="{{ url_for('auth.register') }}">Click here to register</a></p>
+</div>
+{% endblock %}
+{% scripts %}
+{{ super() }}
+<script src="https://unpkg.com/vue"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    var app = new Vue({
+        el: '#confirm',
+        data: {
+            message: null
+        },
+        methods: {
+            resendCode: function() {
+                var self = this;
+                axios.post('/resend_code')
+                .then(function(response) {
+                    vm.message = response.message;
+                })
+
+            }
+        }
+    })    
+</script>

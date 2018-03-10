@@ -73,6 +73,20 @@ def logout():
     flash('You have been logged out.')
     return redirect(url_for('main.index'))
 
+@auth.route('/resend_code', methods=['POST'])
+def resend_code():
+    code = current_user.generate_confirmation_code()
+    print(code)
+    return code
+
+
+@auth.route('/resend_authy', methods=['POST'])
+def resend_authy():
+    code = current_user.generate_2fa()
+    print(code)
+    return code
+
+
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
