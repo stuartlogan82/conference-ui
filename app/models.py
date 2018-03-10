@@ -1,7 +1,9 @@
 from . import db
+from flask import current_app
 from flask_login import UserMixin
 from . import login_manager
 from werkzeug.security import generate_password_hash, check_password_hash
+from authy.api import AuthyApiClient
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -79,9 +81,54 @@ class User(UserMixin, db.Model):
     @twilio_auth_token.setter
     def twilio_auth_token(self, twilio_auth_token):
         self.twilio_auth_token_hash = generate_password_hash(twilio_auth_token)
+        
 
     def verify_twilio_auth_token(self, twilio_auth_token):
         return check_password_hash(self.twilio_auth_token_hash, twilio_auth_token)
+
+
+    def generate_confirmation_code(self):
+        authy_api = AuthyApiClient(current_app.config['AUTHY_KEY'])
+        request = authy_api.phones.verification_start(self.phone, self.country_code, via='sms')
+        print(request.content)
+
+
+    def check_confirmation_code(self, code):
+        authy_api = AuthyApiClient(current_app.config['AUTHY_KEY'])
+        check = authy_api.phones.verification_check(
+            self.phone, self.country_code, code)
+        if check.ok():
+            self.phone_number_confirmed = True
+            db.session.add(self)
+            return True
+        else:
+            return False
+
+        
+    def create_authy_user(self):
+        authy_api = AuthyApiClient(current_app.config['AUTHY_KEY'])
+        user = authy_api.users.create(self.email, self.phone, self.country_code)
+        if user.ok():
+            self.authy_user_id = user.id
+            db.session.add(self)
+            return True
+        else:
+            return user.errors()
+
+
+    def generate_2fa(self):
+        authy_api = AuthyApiClient(current_app.config['AUTHY_KEY'])
+        request = authy_api.users.request_sms(self.authy_user_id)
+        return request.content
+
+
+    def check_2fa(self, code):
+        authy_api = AuthyApiClient(current_app.config['AUTHY_KEY'])
+        check = authy_api.tokens.verify(self.authy_user_id, code)
+        if check.ok():
+            return True
+        else:
+            return False
 
 
     def __repr__(self):

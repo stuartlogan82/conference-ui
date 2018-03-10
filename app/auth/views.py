@@ -1,6 +1,5 @@
 from flask import render_template, redirect, request, url_for, flash, current_app
 from flask_login import login_user, logout_user, login_required, current_user
-from authy.api import AuthyApiClient
 from . import auth
 from .. import db
 from ..models import User
@@ -41,9 +40,7 @@ def register():
                     twilio_auth_token=form.twilio_token.data)
         db.session.add(user)
         app = current_app._get_current_object()
-        authy_api = AuthyApiClient(app.config['AUTHY_KEY'])
-        request = authy_api.phones.verification_start(form.phone_number.data, form.country_code.data, via='sms')
-        print(request.content)
+        
         flash('{}'.format(request.content['message']))
         return redirect(url_for('auth.verify'))
     return render_template('auth/register.html', form=form)
