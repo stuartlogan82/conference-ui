@@ -50,3 +50,13 @@ class RegistrationForm(FlaskForm):
 class VerificationForm(FlaskForm):
     code = StringField('Enter Code', validators=[Required(), Regexp('[0-9]*$', 0, 'Must be numbers only')])
     submit = SubmitField('Confirm!')
+
+
+class ChangePasswordForm(FlaskForm):
+    old_password = PasswordField('Old Password', validators=[Required()])
+    password = PasswordField('New Password', validators=[Required(), EqualTo('password2', 'Passwords must match')])
+    password2 = PasswordField('Confirm New Password', validators=[Required()])
+    submit = SubmitField('Change Password')
+
+class ConferenceSettingsForm(RegistrationForm):
+    twilio_phone = StringField('Phone Number', validators=[Required(), Length(1, 15), Regexp('[\+][0-9]*$', 0, 'Must be numbers only')])

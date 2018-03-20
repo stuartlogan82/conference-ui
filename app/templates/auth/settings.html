@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}The Marae - Settings{% endblock %}
+{% block content %}
+{{ super() }}
+<div class="ui grid" id="settings">
+    
+    <div class="four wide column">
+        <div class="ui vertical fluid tabular menu">
+            <a v-for="(tab, id) in tabs" :key="id" :id="'tab-' + id" :class=" { active:id == currentTab }" class="item" @click="currentTab = id">
+            {% raw %}{{tab}}{% endraw %}
+            </a>
+        
+        </div>
+    </div>
+    <div class="eight wide stretched column">
+        <div v-if="currentTab == 0" class="ui segment">
+            <h1 class="ui center aligned header">Change Password</h1>
+            <form class="ui form" method="POST">
+                {{ password_form.hidden_tag() }}
+                <div class="field">
+                    {{ password_form.old_password.label }} {{ password_form.old_password() }}
+                </div>
+                <div class="field">
+                    {{ password_form.password.label }} {{ password_form.password() }}
+                </div>
+                <div class="field">
+                    {{ password_form.password2.label }} {{ password_form.password2() }}
+                </div>
+                {{ password_form.submit(class='ui primary button') }}
+            </form>
+        </div>
+        <div v-if="currentTab == 1" class="ui segment">
+            <h1 class="ui center aligned header">Conference Settings</h1>
+            <form class="ui form" method="POST">
+                {{ conference_form.hidden_tag() }}
+                <div class="field">
+                    {{ conference_form.twilio_sid.label }} {{ conference_form.twilio_sid(value=current_user.verify_twilio_account_sid(current_user.twilio_account_sid_hash)) }}
+                </div>
+                <div class="field">
+                    {{ conference_form.twilio_token.label }} {{ conference_form.twilio_token() }}
+                </div>
+                <div class="field">
+                    {{ conference_form.twilio_phone.label }} {{ conference_form.twilio_phone() }}
+                </div>
+                {{ conference_form.submit(class='ui primary button') }}
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %} 
+{{ super() }}
+<script src="https://unpkg.com/vue"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    var app = new Vue({
+        el: '#settings',
+        data: {
+            tabs: ['Security Settings', 'Conference Settings'],
+            currentTab: 0,
+        },
+        methods: {
+            setActive: function () {
+                var self = this;
+                axios.post('/resend_authy')
+                    .then(function (response) {
+                        vm.message = response.message;
+                    })
+
+            }
+        }
+    })
+
+</script>
+{% endblock %}

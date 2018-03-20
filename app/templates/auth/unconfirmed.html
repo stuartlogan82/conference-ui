@@ -4,6 +4,7 @@
 {% block page_content %}
 <div class="ui segment" id="confirm">
     <h1 class="ui header">Enter Confirmation Code</h1>
+    <p>We just need to confirm that you own the mobile number you registered with. You should have received a confirmation code by SMS. Please enter it below, or hit resend if you don't have it.</p>
     <form class="ui form" method="POST">
         {{ form.hidden_tag() }}
         <div class="field">
@@ -16,6 +17,7 @@
             <div class="field">
                 <div class="ui button" @click="resendCode">Resend Code</div>
             </div>
+        </div>
         <div v-if="message" class="ui message">
             {% raw %}{{ message }}{% endraw %}
         </div>
@@ -34,10 +36,10 @@
         },
         methods: {
             resendCode: function() {
-                var self = this;
-                axios.post('/resend_code')
+                var vm = this;
+                axios.post('{{ url_for("auth.resend_code") }}')
                 .then(function(response) {
-                    vm.message = response.message;
+                    vm.message = response.data;
                 })
 
             }

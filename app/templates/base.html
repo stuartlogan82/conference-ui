@@ -14,7 +14,7 @@
     {% endblock %}
 </head>
 <body>
-    <div class="ui container large top secondary menu">
+    <div class="ui stackable container large top secondary menu" id="nav">
         <div class="header item">
             <a class="ui large header" href="{{ url_for('main.index') }}">
             <img src="{{ url_for('static', filename='marae.png') }}" />
@@ -23,7 +23,7 @@
         <div class="right menu">
             {% if current_user.is_authenticated %}
             <div class="item"><a class="ui small header"><i class="users icon"></i>My Conferences</a></div>
-            <div class="item"><a class="ui small header"><i class="cog icon"></i>Settings</a></div>
+            <div class="item"><a class="ui small header" href="{{ url_for('auth.settings') }}"><i class="cog icon"></i>Settings</a></div>
             <div class="item">
                 <div>
                     <a class="ui red button" href="{{ url_for('auth.logout') }}">Sign Out</a>
@@ -41,25 +41,50 @@
         </div>
     </div>
      {% block content %}
-    <!-- <div class="ui text container"> -->
+    <div class="ui text container">
         {% for message in get_flashed_messages() %}
-        <div class="ui floating warning message text container">
+        <div class="ui floating warning message">
             <i class="close icon"></i>
             {{ message }}
         </div>
-    <!-- </div> -->
-        {% endfor %}
+         {% endfor %}
+    </div>
+     {% endblock %}
     <div class="ui text container">
         <div class="ui segments">
         {% block page_content %}{% endblock %}
         </div>
     </div>
-    {% endblock %}
+    
     {% block scripts %}
     <!-- {{ moment.include_moment() }} -->
     <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
     crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='semantic/dist/semantic.min.js') }}"></script>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        var nav = new Vue({
+            el: '#nav',
+            data: {
+                rotate: false,
+                navItems: ['conference', 'settings']
+            },
+            methods: {
+                startRotate: function(){ 
+                    console.log(event);
+                    console.log("ID >>>")
+                    console.log(event.target.childNodes['0'])
+                    event.target.childNodes['0'].className += " loading";
+                },
+                stopRotate: function () {
+                    console.log(event);
+                    event.target.childNodes['0'].className -= " loading";
+                }
+            }
+        })
+
+    </script>
     <script>
         $('.message .close')
                 .on('click', function () {

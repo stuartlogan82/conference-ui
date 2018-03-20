@@ -1,9 +1,0 @@
-@font-face {
-    font-family: Whitney-Book;
-    src: url("{{ url_for('static', filename='Whitney-Book.otf')}}") format("opentype");
-}
-
-@font-face {
-    font-family: KnockoutONJuniorBantamweight;
-    src: url("static/KnockoutONJuniorBantamweight.ttf") format("opentype");
-}

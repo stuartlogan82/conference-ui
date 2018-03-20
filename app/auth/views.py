@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from . import auth
 from .. import db
 from ..models import User
-from .forms import LoginForm, RegistrationForm, VerificationForm
+from .forms import LoginForm, RegistrationForm, VerificationForm, ChangePasswordForm, ConferenceSettingsForm
 
 
 @auth.before_app_request
@@ -32,7 +32,7 @@ def unconfirmed():
                 flash('Authy ID created!')
                 return redirect(url_for('main.index'))
             else:
-                flash('Code invalid or expired')
+                flash('Code invalid or expired, press resend to receive a new one')
                 #return redirect(url_for('auth.unconfirmed'))
     return render_template('auth/unconfirmed.html', form=form)
 
@@ -51,8 +51,8 @@ def login():
                 code = current_user.generate_2fa()
                 flash('{}'.format(code['message']))
                 return redirect(url_for('auth.verify'))
-    else:
-        flash('Invalid username or password.')
+        else:
+            flash('Invalid username or password.')
     return render_template('auth/login.html', form=form)
 
 @auth.route('/verify', methods=['GET', 'POST'])
@@ -78,7 +78,7 @@ def logout():
 def resend_code():
     code = current_user.generate_confirmation_code()
     print(code)
-    return code
+    return code['message']
 
 
 @auth.route('/resend_authy', methods=['POST'])
@@ -107,3 +107,18 @@ def register():
         
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', form=form)
+
+@auth.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    password_form = ChangePasswordForm()
+    conference_form = ConferenceSettingsForm()
+    if password_form.validate_on_submit():
+        if current_user.verify_password(password_form.old_password.data):
+            current_user.password = password_form.password.data
+            db.session.add(current_user)
+            flash('Your password has been updated!')
+            return redirect(url_for('auth.settings'))
+        else:
+            flash('Invalid current password')
+    return render_template('auth/settings.html', password_form=password_form, conference_form=conference_form)
