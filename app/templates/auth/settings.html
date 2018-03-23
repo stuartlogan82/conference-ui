@@ -34,13 +34,13 @@
             <form class="ui form" method="POST">
                 {{ conference_form.hidden_tag() }}
                 <div class="field">
-                    {{ conference_form.twilio_sid.label }} {{ conference_form.twilio_sid(value=current_user.verify_twilio_account_sid(current_user.twilio_account_sid_hash)) }}
+                    {{ conference_form.twilio_sid.label }} {{ conference_form.twilio_sid(value=current_user.twilio_account_sid) }}
                 </div>
                 <div class="field">
                     {{ conference_form.twilio_token.label }} {{ conference_form.twilio_token() }}
                 </div>
                 <div class="field">
-                    {{ conference_form.twilio_phone.label }} {{ conference_form.twilio_phone() }}
+                    {{ conference_form.twilio_phone.label }} {{ conference_form.twilio_phone(value=current_user.twilio_phone) }}
                 </div>
                 {{ conference_form.submit(class='ui primary button') }}
             </form>

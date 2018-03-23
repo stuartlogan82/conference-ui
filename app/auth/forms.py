@@ -58,5 +58,14 @@ class ChangePasswordForm(FlaskForm):
     password2 = PasswordField('Confirm New Password', validators=[Required()])
     submit = SubmitField('Change Password')
 
-class ConferenceSettingsForm(RegistrationForm):
-    twilio_phone = StringField('Phone Number', validators=[Required(), Length(1, 15), Regexp('[\+][0-9]*$', 0, 'Must be numbers only')])
+class ConferenceSettingsForm(FlaskForm):
+    twilio_phone = StringField('Phone Number', validators=[Required(), Length(1, 15)])
+    twilio_sid = StringField('Twilio Account SID', validators=[
+        Required(), Length(30, 40),
+        Regexp('[A-Za-z][A-Za-z0-9]*$', 0,
+               'Not a valid Account SID')])
+    twilio_token = StringField('Twilio Auth Token', validators=[
+        Required(), Length(15, 40),
+        Regexp('[A-Za-z0-9]*$', 0,
+               'Not a valid Auth Token')])
+    submit = SubmitField('Update Settings')

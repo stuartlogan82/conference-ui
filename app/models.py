@@ -47,10 +47,11 @@ class User(UserMixin, db.Model):
     phone = db.Column(db.String(32), unique=True)
     conferences = db.relationship('Conference', backref='users')
     password_hash = db.Column(db.String(128))
-    twilio_account_sid_hash = db.Column(db.String(128))
-    twilio_auth_token_hash = db.Column(db.String(128))
+    twilio_account_sid = db.Column(db.String(128))
+    twilio_auth_token = db.Column(db.String(128))
     phone_number_confirmed = db.Column(db.Boolean, default=False)
     authy_user_id = db.Column(db.String)
+    twilio_number = db.Column(db.String(32))
 
     @property
     def password(self):
@@ -63,7 +64,7 @@ class User(UserMixin, db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    @property
+    ''' @property
     def twilio_account_sid(self):
         raise AttributeError('twilio_account_sid is not a readable attribute')
 
@@ -85,7 +86,7 @@ class User(UserMixin, db.Model):
 
     def verify_twilio_auth_token(self, twilio_auth_token):
         return check_password_hash(self.twilio_auth_token_hash, twilio_auth_token)
-
+ '''
 
     def generate_confirmation_code(self):
         authy_api = AuthyApiClient(current_app.config['AUTHY_KEY'])

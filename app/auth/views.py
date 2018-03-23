@@ -121,4 +121,12 @@ def settings():
             return redirect(url_for('auth.settings'))
         else:
             flash('Invalid current password')
+    if conference_form.validate_on_submit():
+        print("Submitting Conference Form")
+        current_user.twilio_account_sid = conference_form.twilio_sid.data
+        current_user.twilio_auth_token = conference_form.twilio_token.data
+        current_user.twilio_number = conference_form.twilio_phone.data
+        db.session.add(current_user)
+        flash('Twilio Settings Updated!')
+        return redirect(url_for('auth.settings'))
     return render_template('auth/settings.html', password_form=password_form, conference_form=conference_form)
