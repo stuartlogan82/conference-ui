@@ -1,9 +1,18 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import Required, Length, Email, Regexp, EqualTo
+from wtforms.widgets import TextInput
 from wtforms import ValidationError
 from ..models import User
 from ..twilio import twilio_lookup
+
+class VueJSTextInput(TextInput):
+    def __call__(self, field, **kwargs):
+        for key in list(kwargs):
+            if key.startswith('v_'):
+                kwargs['v-' + key[2:]] = kwargs.pop(key)
+                print(kwargs['v-' + key[2:]])
+        return super(VueJSTextInput, self).__call__(field, **kwargs)
 
 class LoginForm(FlaskForm):
     email = StringField('E-Mail', validators=[Required(), Length(1,64), Email()])
@@ -59,7 +68,7 @@ class ChangePasswordForm(FlaskForm):
     submit = SubmitField('Change Password')
 
 class ConferenceSettingsForm(FlaskForm):
-    twilio_phone = StringField('Phone Number', validators=[Required(), Length(1, 15)])
+    twilio_phone = StringField('Phone Number', validators=[Required(), Length(1, 15)], widget=VueJSTextInput())
     twilio_sid = StringField('Twilio Account SID', validators=[
         Required(), Length(30, 40),
         Regexp('[A-Za-z][A-Za-z0-9]*$', 0,

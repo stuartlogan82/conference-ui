@@ -4,6 +4,8 @@ from . import auth
 from .. import db
 from ..models import User
 from .forms import LoginForm, RegistrationForm, VerificationForm, ChangePasswordForm, ConferenceSettingsForm
+from twilio.rest import Client
+
 
 
 @auth.before_app_request
@@ -130,3 +132,27 @@ def settings():
         flash('Twilio Settings Updated!')
         return redirect(url_for('auth.settings'))
     return render_template('auth/settings.html', password_form=password_form, conference_form=conference_form)
+
+
+@auth.route('/test_call', methods=['POST'])
+@login_required
+def test_call():
+    payload = request.get_json()
+    print(payload['twilio_sid'])
+    print(payload['twilio_token'])
+    print(payload['number'])
+    user_phone = "{}{}".format(current_user.country_code, current_user.phone)
+    print(current_user.phone)
+    client = Client(payload['twilio_sid'], payload['twilio_token'])
+    try:
+        call = client.calls.create(
+            to=user_phone,
+            from_=payload['number'],
+            url=url_for('static', filename='twiml/test_call.xml', _external=True),
+            method='GET'
+        )
+        print(call.sid)
+        return(call.sid)
+    except Exception as e:
+        print(e)
+        return(e)
