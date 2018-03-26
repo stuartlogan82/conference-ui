@@ -1,9 +1,11 @@
 from . import db
-from flask import current_app
+from flask import current_app, url_for
 from flask_login import UserMixin
 from . import login_manager
 from werkzeug.security import generate_password_hash, check_password_hash
 from authy.api import AuthyApiClient
+from twilio.rest import Client
+from twilio.base.exceptions import TwilioRestException
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -52,6 +54,8 @@ class User(UserMixin, db.Model):
     phone_number_confirmed = db.Column(db.Boolean, default=False)
     authy_user_id = db.Column(db.String)
     twilio_number = db.Column(db.String(32))
+    sync_map_sid = db.Column(db.String(64))
+
 
     @property
     def password(self):
@@ -132,6 +136,43 @@ class User(UserMixin, db.Model):
         else:
             return False
 
+    def configure_conference(self):
+        client = Client(self.twilio_account_sid, self.twilio_auth_token)
+        numbers =  client.incoming_phone_numbers \
+                    .list(phone_number=self.twilio_number)
+        phone_sid = numbers[0].sid
+        print("PHONE SID FOUND! >>> {}".format(phone_sid))
+        if phone_sid:
+            number = client.incoming_phone_numbers(phone_sid) \
+                        .update(voice_url=url_for('main.join_conference', _external=True))
+            print("VOICE URL UPDATED! >>> {}".format(number.voice_url))
+            return True
+        else:
+            return False
+
+    def configure_sync_map(self):
+        client = Client(current_app.config['TWILIO_ACCOUNT_SID'], 
+                        current_app.config['TWILIO_AUTH_TOKEN'])
+        map_service_sid = current_app.config['TWILIO_SYNC_SERVICE_SID']
+        try:
+            retrieve_map = client.sync.services(map_service_sid) \
+                            .sync_maps(self.email).fetch()
+            self.sync_map_sid = retrieve_map.sid
+            print(retrieve_map.sid)
+            db.session.add(self)
+            return True
+        except TwilioRestException as e:
+            create_map = client.sync.services(map_service_sid) \
+                            .sync_maps.create(unique_name=self.email)
+            if create_map:
+                self.sync_map_sid = create_map.sid
+                print(create_map.sid)
+                db.session.add(self)
+                return True
+            else:
+                return False
+        
+        
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User %r>' % self.email

@@ -1,13 +1,14 @@
+
 var app = new Vue({
     el: '#active-conference',
     data: {
-        loggedUser: "slogan@twilio.com",
+        loggedUser: currentUserEmail,
         syncEndpoint: "",
         syncStatus: "Disconnected",
         newParticipant: false,
         newParticipantNumber: '',
         conferenceParticipants: [],
-        currentConferenceMap: "MPa390d0599a4a4be898f028305a95e3b6",
+        currentConferenceMap: syncMapSid,
         previousConferences: [
             {
                 confSid: "CF05u757673033006979",
@@ -115,12 +116,12 @@ var app = new Vue({
 
 // Twilio Sync setup
 var syncClient;
-var syncMapName = "ActiveConference";
+var syncMapName = "The Marae";
 var userid = app.$data.loggedUser;
 var ts = Math.round((new Date().getTime() / 1000));
 var tokenUserId = userid + ts;
 app.$data.syncEndpoint = tokenUserId;
-$.getJSON('/token?identity=' + tokenUserId, function (tokenResponse) {
+$.getJSON('/auth/token?identity=' + tokenUserId, function (tokenResponse) {
     //Initialise sync client
     var syncClient = new Twilio.Sync.Client(tokenResponse.token, { logLevel: 'info' });
     app.$data.syncStatus = userid + ' Connected';

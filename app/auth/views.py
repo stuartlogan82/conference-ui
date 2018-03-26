@@ -1,10 +1,12 @@
-from flask import render_template, redirect, request, url_for, flash, current_app
+from flask import render_template, redirect, request, url_for, flash, current_app, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from . import auth
 from .. import db
 from ..models import User
 from .forms import LoginForm, RegistrationForm, VerificationForm, ChangePasswordForm, ConferenceSettingsForm
 from twilio.rest import Client
+from twilio.jwt.access_token import AccessToken
+from twilio.jwt.access_token.grants import SyncGrant
 
 
 
@@ -129,7 +131,19 @@ def settings():
         current_user.twilio_auth_token = conference_form.twilio_token.data
         current_user.twilio_number = conference_form.twilio_phone.data
         db.session.add(current_user)
-        flash('Twilio Settings Updated!')
+        db.session.commit()
+
+        flash('Twilio Settings Updated! Setting up your number for conferencing!')
+        conference = current_user.configure_conference()
+        if conference:
+            flash('Conference URL successfully configured')
+        else:
+            flash('Error creating conference, contact Administrator')
+        sync_map = current_user.configure_sync_map()
+        if sync_map:
+            flash('Sync Map Created! SID: {}'.format(current_user.sync_map_sid))
+        else:
+            flash('Sync Map failed to create')
         return redirect(url_for('auth.settings'))
     return render_template('auth/settings.html', password_form=password_form, conference_form=conference_form)
 
@@ -156,3 +170,19 @@ def test_call():
     except Exception as e:
         print(e)
         return(e)
+
+
+@auth.route('/token')
+@login_required
+def token():
+    # get the userid from the incoming request
+    identity = request.values.get('identity', None)
+    # Create access token with credentials
+    token = AccessToken(current_app.config['TWILIO_ACCOUNT_SID'],
+                        current_app.config['TWILIO_API_KEY'],
+                        current_app.config['TWILIO_API_SECRET'], identity=identity)
+    # Create a Sync grant and add to token
+    sync_grant = SyncGrant(service_sid=current_app.config['TWILIO_SYNC_SERVICE_SID'])
+    token.add_grant(sync_grant)
+    # Return token info as JSON
+    return jsonify(identity=identity, token=token.to_jwt().decode('utf-8'))

@@ -1,7 +1,65 @@
 {% extends "base.html" %}
 {% block title %}Conference UI{% endblock %}
 {% block page_content %}
-<div class="ui segment">
+<div class="ui raised very padded text container segment" id="active-conference">
     <h1 class="ui header">Hello, {% if current_user.is_authenticated %}{{ current_user.first_name }}{% else %} Stranger{% endif %}!</h1>
+    <div class="ui segment raised">
+        <h1>Active Conference</h1>
+        <form class="ui form" name="add" v-on:submit.prevent>
+
+
+            <button class="ui basic button" v-on:click="newParticipant = !newParticipant">
+                    <i class="icon user"></i>
+                    Add Participant
+                </button>
+            <div v-if="newParticipant">
+                <label>Participant Number</label>
+                <input type="text" v-model="newParticipantNumber">
+                <button class="ui basic button" v-on:click="dialParticipant">
+                        <i class="icon user"></i>Dial
+                    </button>
+            </div>
+        </form>
+        <table class="ui celled padded table">
+            <thead>
+                <tr>
+                    <th>Speaking?</th>
+                    <th>Participant</th>
+                    <th>Controls</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(participant, index) in conferenceParticipants" :class="{ negative: participant.muted }">
+                    <td><i v-if="participant.speaking" class="comment icon"></i></td>
+                    <td>{% raw %}{{ participant.participantNumber }}{% endraw %}</td>
+                    <td><i @click="muteParticipant(index)" class="circular red mute icon"></i></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="ui segment raised">
+        <h2>Previous Conferences</h2>
+        <div class="ui accordion" v-for="(conference, index) in previousConferences">
+            <div class="title">
+                <i class="dropdown icon"></i> {% raw %}{{conference.friendlyName}}{% endraw %}
+            </div>
+            <div class="content">
+                <p>Duration: {% raw %}{{ conference.duration }}{% endraw %}</p>
+                <p v-for="(participant) in conference.participants">{% raw %}{{ participant }}{% endraw %}</p>
+            </div>
+        </div>
+    </div>
 </div>
+
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script src="https://unpkg.com/vue"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://media.twiliocdn.com/sdk/js/sync/v0.6/twilio-sync.min.js"></script>
+<script>
+    var currentUserEmail = '{{ current_user.email }}'
+    var syncMapSid = '{{ current_user.sync_map_sid }}'
+</script>
+<script src="/static/index.js"></script>
 {% endblock %}

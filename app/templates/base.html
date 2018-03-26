@@ -41,14 +41,14 @@
         </div>
     </div>
      {% block content %}
-    <div class="ui text container">
+    <!-- <div class="ui  container"> -->
         {% for message in get_flashed_messages() %}
-        <div class="ui floating warning message">
+        <div class="ui floating warning message text container">
             <i class="close icon"></i>
             {{ message }}
         </div>
          {% endfor %}
-    </div>
+    <!-- </div> -->
      {% endblock %}
     <div class="ui text container">
         <div class="ui segments">
