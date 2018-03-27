@@ -8,7 +8,6 @@ from ..models import Conference as UserConference
 from ..email import send_email
 from twilio.twiml.voice_response import Conference, Dial, VoiceResponse, Say
 from twilio.rest import Client
-from datetime import datetime
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -87,13 +86,7 @@ def parse_events():
             "speaking": False,
             "dropped": False
         }
-        participant = Participant(
-            number=data['participantNumber'],
-            direction=data['direction'],
-            call_sid=data['callSid']
-        )
-        db.session.add(participant)
-        db.session.commit()
+        
         conference_id = UserConference.query.filter_by(call_sid=conference_sid).first()
         print(conference_id)
         if conference_id is None:
@@ -106,8 +99,17 @@ def parse_events():
             db.session.add(conference_data)
             db.session.commit()
             user.conferences.append(conference_data)
-        else:
-            conference_id.participants.append(participant)
+            conference_id = UserConference.query.filter_by(call_sid=conference_sid).first()
+
+            
+        participant = Participant(
+            number=data['participantNumber'],
+            direction=data['direction'],
+            call_sid=data['callSid']
+        )
+        db.session.add(participant)
+        db.session.commit()
+        conference_id.participants.append(participant)
         print("DATA >>> {}".format(data))
 
         map_item = client.sync.services(TWILIO_SYNC_SERVICE_SID) \
