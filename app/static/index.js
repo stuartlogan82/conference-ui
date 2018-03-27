@@ -116,7 +116,7 @@ var app = new Vue({
 
 // Twilio Sync setup
 var syncClient;
-var syncMapName = "The Marae";
+var syncMapName = "{{ current_user.email }}";
 var userid = app.$data.loggedUser;
 var ts = Math.round((new Date().getTime() / 1000));
 var tokenUserId = userid + ts;
@@ -126,7 +126,7 @@ $.getJSON('/auth/token?identity=' + tokenUserId, function (tokenResponse) {
     var syncClient = new Twilio.Sync.Client(tokenResponse.token, { logLevel: 'info' });
     app.$data.syncStatus = userid + ' Connected';
     //subscribe to map
-    syncClient.map(syncMapName).then(function(map) {
+    syncClient.map(app.currentConferenceMap).then(function(map) {
         map.getItems().then(function(items) {
             app.syncRetrieveConferenceMap(items);
         })

@@ -6,6 +6,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from authy.api import AuthyApiClient
 from twilio.rest import Client
 from twilio.base.exceptions import TwilioRestException
+from datetime import datetime
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -31,8 +33,8 @@ class Conference(db.Model):
     call_sid = db.Column(db.String(64), unique=True, index=True)
     name = db.Column(db.String(64))
     account_sid = db.Column(db.String(64))
-    date_created = db.Column(db.String(64))
-    participants = db.relationship('Participant', backref='conference')
+    date_created = db.Column(db.String(64), default=datetime.utcnow, index=True)
+    participants = db.relationship('Participant', backref='conferences', lazy='dynamic')
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     def __repr__(self):
@@ -47,7 +49,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(64), unique=True, index=True)
     country_code = db.Column(db.String(16))
     phone = db.Column(db.String(32), unique=True)
-    conferences = db.relationship('Conference', backref='users')
+    conferences = db.relationship('Conference', backref='users', lazy='dynamic')
     password_hash = db.Column(db.String(128))
     twilio_account_sid = db.Column(db.String(128))
     twilio_auth_token = db.Column(db.String(128))
