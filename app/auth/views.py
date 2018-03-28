@@ -18,7 +18,15 @@ def before_request():
             and request.endpoint[:5] != 'auth.' \
             and request.endpoint != 'static':
         return redirect(url_for('auth.unconfirmed'))
-
+    elif current_user.is_authenticated \
+        and (not current_user.twilio_account_sid \
+            or not current_user.twilio_auth_token \
+            or not current_user.twilio_number) \
+        and request.endpoint \
+        and request.endpoint[:5] != 'auth.' \
+        and request.endpoint != 'static':
+        twilio_form = ConferenceSettingsForm()
+        return(redirect(url_for('auth.register', step='1', twilio_form=twilio_form)))
 
 @auth.route('/unconfirmed', methods=['GET', 'POST'])
 def unconfirmed():
@@ -66,6 +74,11 @@ def verify():
     if form.validate_on_submit():
         check = current_user.check_2fa(form.code.data)
         if check:
+            if current_user.twilio_account_sid is None or \
+                current_user.twilio_auth_token is None or \
+                current_user.twilio_number is None:
+                twilio_form = ConferenceSettingsForm()
+                return(redirect(url_for('auth.register', step='1', twilio_form=twilio_form)))
             return redirect(request.args.get('next') or url_for('main.index'))
         else:
             flash("Token expired or incorrect!")
@@ -96,21 +109,22 @@ def resend_authy():
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
+    twilio_form = ConferenceSettingsForm()
     if form.validate_on_submit():
         user = User(email=form.email.data,
                     first_name=form.first_name.data,
                     last_name=form.last_name.data,
                     password=form.password.data,
                     country_code=form.country_code.data,
-                    phone=form.phone_number.data,
-                    twilio_account_sid=form.twilio_sid.data,
-                    twilio_auth_token=form.twilio_token.data)
+                    phone=form.phone_number.data)
+                    # twilio_account_sid=form.twilio_sid.data,
+                    # twilio_auth_token=form.twilio_token.data)
         db.session.add(user)
         db.session.commit()
         flash('Registration Successful, you may now log in!')
         
         return redirect(url_for('auth.login'))
-    return render_template('auth/register.html', form=form)
+    return render_template('auth/register.html', form=form, twilio_form=twilio_form,step='0')
 
 @auth.route('/settings', methods=['GET', 'POST'])
 @login_required

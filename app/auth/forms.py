@@ -39,7 +39,7 @@ class RegistrationForm(FlaskForm):
                             choices=[('+44', 'UK +44'), ('+1', 'US +1')], validators=[Required()])
     phone_number = StringField('Phone Number', validators=[Required(),Length(1,15), 
                             Regexp('[0-9]*$', 0, 'Must be numbers only')])
-    twilio_sid = StringField('Twilio Account SID', validators=[
+    """twilio_sid = StringField('Twilio Account SID', validators=[
                             Required(), Length(30, 40),
                             Regexp('[A-Za-z][A-Za-z0-9]*$', 0,
                                    'Not a valid Account SID')])
@@ -47,7 +47,7 @@ class RegistrationForm(FlaskForm):
                             Required(), Length(15, 40),
                             Regexp('[A-Za-z0-9]*$', 0,
                                    'Not a valid Auth Token')])
-    """twilioPhoneNumber = StringField('Phone Number', validators=[Required(), Length(1,15), 
+    twilioPhoneNumber = StringField('Phone Number', validators=[Required(), Length(1,15), 
                             Regexp('[\+][0-9]*$', 0, 'Must be numbers only')])"""
     submit = SubmitField('Register')
 

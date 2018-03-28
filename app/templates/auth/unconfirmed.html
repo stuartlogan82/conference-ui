@@ -4,6 +4,29 @@
 {% block page_content %}
 <div class="ui segment" id="confirm">
     <h1 class="ui header">Enter Confirmation Code</h1>
+    <div class="ui three steps">
+        <div class="completed disabled step">
+            <i class="user icon"></i>
+            <div class="content">
+                <div class="title">User Details</div>
+                <div class="desciption">A little bit about you</div>
+            </div>
+        </div>
+        <div class="active step">
+            <i class="tablet alternate icon"></i>
+            <div class="content">
+                <div class="title">Verify Account</div>
+                <div class="desciption">Enter your verification code</div>
+            </div>
+        </div>
+        <div class="disabled step">
+            <i class="phone icon"></i>
+            <div class="content">
+                <div class="title">Twilio Details</div>
+                <div class="desciption">Your Twilio Account Details</div>
+            </div>
+        </div>
+        </div>
     <p>We just need to confirm that you own the mobile number you registered with. You should have received a confirmation code by SMS. Please enter it below, or hit resend if you don't have it.</p>
     <form class="ui form" method="POST">
         {{ form.hidden_tag() }}

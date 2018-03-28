@@ -19,9 +19,34 @@
 
 {% block page_content %}
 
-<div class="ui segment">
-    <h1 class="ui center aligned header">Register</h1>
-
+<div class="ui segment" id="register">
+    <div v-if="step==0">
+    <h1 class="ui center aligned header">Register - User</h1>
+    <div class="ui three steps">
+        <div class="active step">
+            <i class="user icon"></i>
+            <div class="content">
+                <div class="title">User Details</div>
+                <div class="desciption">A little bit about you</div>    
+            </div>
+        </div>
+        <div class="disabled step">
+            <i class="tablet alternate icon"></i>
+            <div class="content">
+                <div class="title">Verify Account</div>
+                <div class="desciption">Enter your verification code</div>
+            </div>
+        </div>
+        <div class="disabled step">
+            <i class="phone icon"></i>
+            <div class="content">
+                <div class="title">Twilio Details</div>
+                <div class="desciption">Your Twilio Account Details</div>
+            </div>
+        </div>
+    </div>
+    <p>We need to know a few things about you to provide a personalized experience.
+        Your mobile number is required to verify your account in the next step, authenticate you on subsequent logins and to enable SMS alerts</p>
     <form class="ui form" method="POST">
         {{ form.hidden_tag() }}
         
@@ -50,9 +75,85 @@
                 
             </div>
         </div>
-        {{ with_errors(form.twilio_sid) }}
-        {{ with_errors(form.twilio_token) }}
+        
         {{ form.submit(class='ui button') }}
     </form>
+    </div>
+    <div v-else>
+    <h1 class="ui center aligned header">Register - Twilio Bits</h1>
+    <div class="ui three steps">
+        <div class="completed disabled step">
+            <i class="user icon"></i>
+            <div class="content">
+                <div class="title">User Details</div>
+                <div class="desciption">A little bit about you</div>
+            </div>
+        </div>
+        <div class="completed disabled step">
+            <i class="tablet alternate icon"></i>
+            <div class="content">
+                <div class="title">Verify Account</div>
+                <div class="desciption">Enter your verification code</div>
+            </div>
+        </div>
+        <div class="active step">
+            <i class="phone icon"></i>
+            <div class="content">
+                <div class="title">Twilio Details</div>
+                <div class="desciption">Your Twilio Account Details</div>
+            </div>
+        </div>
+    </div>
+    <p>You'll need to have a Twilio Account to make use of the Marae. If you 
+        don't have one, please head to <a href="https://www.twilio.com/try-twilio">Try Twilio</a> and come back when you're done</p>
+        <form class="ui form" method="POST">
+            {{ twilio_form.hidden_tag() }}
+            
+            {{ with_errors(twilio_form.twilio_sid) }}
+
+            {{ with_errors(twilio_form.twilio_token) }}
+            
+            {{ with_errors(twilio_form.twilio_phone) }}
+
+             {{ twilio_form.submit(class='ui button') }}
+        </form>
+    </div>
 </div>
+{% endblock %}
+{% block scripts %} {{ super() }}
+<script src="https://unpkg.com/vue"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    var app = new Vue({
+        el: '#register',
+        data: {
+            steps: ['Personal Details', 'Twilio Settings', 'Confirm'],
+            step: "{{ step }}",
+            message: 'Let\'s make sure everything is in order. We\'ll make a test call to your mobile with the credentials above. Make sure they\'re yours!',
+            sid: "{{ current_user.twilio_account_sid }}",
+            authToken: "{{ current_user.twilio_auth_token }}",
+            number: "{{current_user.twilio_number}}"
+        },
+        methods: {
+            testCall: function () {
+                var vm = this;
+                payload = {
+                    twilio_sid: this.sid,
+                    twilio_token: this.authToken,
+                    number: this.number
+                }
+                axios.post('/auth/test_call', payload)
+                    .then(function (response) {
+                        console.log(response);
+                        vm.message = 'Test Call Successful! You are correctly set up to access the Marae'
+                    }).catch(function (error) {
+                        console.log(error);
+                        vm.message = error;
+                    })
+
+            }
+        }
+    })
+
+</script>
 {% endblock %}

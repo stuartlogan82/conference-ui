@@ -24,7 +24,7 @@ class Participant(db.Model):
     conference_id = db.Column(db.Integer, db.ForeignKey('conferences.id'))
 
     def __repr__(self):
-        return '<Conference %r>' % self.call_sid
+        return '<Participant %r>' % self.call_sid
 
 
 class Conference(db.Model):
