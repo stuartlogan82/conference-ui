@@ -48,6 +48,9 @@
                     <div class="field">
                         <div class="ui button" @click="testCall">Test Settings</div>
                     </div>
+                    <div class="field">
+                        <div class="ui button" @click="buyNumber">Random Phone Number</div>
+                    </div>
                 </div>
                 <div v-if="message" class="ui message">{% raw %}{{ message }}{% endraw %}</div>
             </form>
@@ -88,7 +91,19 @@
                         vm.message = error;
                     })
 
-            }
+            },
+            buyNumber: function () {
+                    var vm = this;
+                    axios.post('/auth/buy_number')
+                        .then(function (response) {
+                            console.log(response);
+                            vm.number = response.data;
+                            vm.message = 'Number purchased and added to your account!'
+                        }).catch(function (error) {
+                            console.log(error);
+                            vm.message = error;
+                        });
+                }
         }
     })
 

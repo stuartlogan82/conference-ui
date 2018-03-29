@@ -130,12 +130,14 @@ def register():
         print('Submitting Twilio Form!')
         current_user.twilio_account_sid = twilio_form.twilio_sid.data
         current_user.twilio_auth_token = twilio_form.twilio_token.data
-        current_user.twilio_number = twilio_form.twilio_phone.data
+        #current_user.twilio_number = twilio_form.twilio_phone.data
+
         db.session.add(current_user)
         db.session.commit()
 
         flash('Twilio Settings Updated! Setting up your number for conferencing!')
-        conference = current_user.configure_conference()
+        conference = current_user.configure_conference(
+            twilio_form.twilio_phone.data)
         if conference:
             flash('Conference URL successfully configured')
         else:
@@ -169,12 +171,12 @@ def settings():
         print("Submitting Conference Form")
         current_user.twilio_account_sid = conference_form.twilio_sid.data
         current_user.twilio_auth_token = conference_form.twilio_token.data
-        current_user.twilio_number = conference_form.twilio_phone.data
+        #current_user.twilio_number = conference_form.twilio_phone.data
         db.session.add(current_user)
         db.session.commit()
 
         flash('Twilio Settings Updated! Setting up your number for conferencing!')
-        conference = current_user.configure_conference()
+        conference = current_user.configure_conference(conference_form.twilio_phone.data)
         if conference:
             flash('Conference URL successfully configured')
         else:
@@ -227,6 +229,7 @@ def token():
     # Return token info as JSON
     return jsonify(identity=identity, token=token.to_jwt().decode('utf-8'))
 
+
 @auth.route('/buy_number', methods=['POST'])
 @login_required
 def buy_number():
@@ -236,8 +239,6 @@ def buy_number():
     numbers = client.available_phone_numbers("GB") \
                     .local \
                     .list(voice_enabled=True, sms_enabled=True)
-    number = client.incoming_phone_numbers \
-                .create(phone_number=numbers[0].phone_number)
-
+    
     print(numbers[0].phone_number)
     return numbers[0].phone_number

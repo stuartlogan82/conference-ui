@@ -138,19 +138,41 @@ class User(UserMixin, db.Model):
         else:
             return False
 
-    def configure_conference(self):
+    def configure_conference(self, new_number):
         client = Client(self.twilio_account_sid, self.twilio_auth_token)
-        numbers =  client.incoming_phone_numbers \
-                    .list(phone_number=self.twilio_number)
-        phone_sid = numbers[0].sid
-        print("PHONE SID FOUND! >>> {}".format(phone_sid))
-        if phone_sid:
-            number = client.incoming_phone_numbers(phone_sid) \
+        try:
+            print("Checking if number already owned")
+            numbers = client.incoming_phone_numbers \
+                .list(phone_number=new_number)
+            if numbers:    
+                phone_sid = numbers[0].sid
+                print("PHONE SID FOUND! >>> {}".format(phone_sid))
+                if phone_sid:
+                    number = client.incoming_phone_numbers(phone_sid) \
                         .update(voice_url=url_for('main.join_conference', _external=True))
-            print("VOICE URL UPDATED! >>> {}".format(number.voice_url))
+                    print("VOICE URL UPDATED! >>> {}".format(number.voice_url))
+                    self.twilio_number = numbers[0].phone_number
+                    return True
+            else:
+                print("Number not in your account. Buying Number")
+                number = client.incoming_phone_numbers \
+                    .create(phone_number=new_number)
+                numbers = client.incoming_phone_numbers \
+                        .list(phone_number=new_number)
+                phone_sid = numbers[0].sid
+                print("PHONE SID FOUND! >>> {}".format(phone_sid))
+                if phone_sid:
+                    number = client.incoming_phone_numbers(phone_sid) \
+                        .update(voice_url=url_for('main.join_conference', _external=True))
+                    print("VOICE URL UPDATED! >>> {}".format(number.voice_url))
+                    self.twilio_number = numbers[0].phone_number
+                    return True
+                self.twilio_number = new_number
             return True
-        else:
+        except TwilioRestException as e:
+            print(e)
             return False
+  
 
     def configure_sync_map(self):
         client = Client(current_app.config['TWILIO_ACCOUNT_SID'], 

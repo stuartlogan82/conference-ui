@@ -4,20 +4,21 @@
 <div class="ui raised very padded text container segment" id="active-conference">
      {% if current_user.is_authenticated %}
     <h1 class="ui header">Kia Ora, {{ current_user.first_name }}!</h1>
+    <h3 class="ui header">Your Twilio number is {{ current_user.twilio_number }}. Share it with your friends</h3>
     <div class="ui segment raised">
         <h2 v-if="conferenceParticipants.length<1" class="ui center aligned header">No Active Conference
         <h2 v-else class="ui header">Active Conference</h2>
         <form class="ui form" name="add" v-on:submit.prevent>
 
 
-            <button class="ui basic button" v-on:click="newParticipant = !newParticipant">
+            <button class="ui button" v-on:click="newParticipant = !newParticipant">
                     <i class="icon user"></i>
                     Add Participant
                 </button>
             <div v-if="newParticipant">
                 <label>Participant Number</label>
                 <input type="text" v-model="newParticipantNumber">
-                <button class="ui basic button" v-on:click="dialParticipant">
+                <button class="ui button" v-on:click="dialParticipant">
                         <i class="icon user"></i>Dial
                     </button>
             </div>
