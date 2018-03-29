@@ -1,17 +1,19 @@
 import json
 from flask import render_template, session, redirect, url_for, current_app, request
+from flask_login import login_required, current_user
 from . import main
 from .forms import NameForm
 from .. import db
 from ..models import User, Participant
 from ..models import Conference as UserConference
 from ..email import send_email
-from twilio.twiml.voice_response import Conference, Dial, VoiceResponse, Say
+from twilio.twiml.voice_response import Conference, Dial, VoiceResponse, Say, Hangup
 from twilio.rest import Client
 
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
+    print(current_user)
     form = NameForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.name.data).first()
@@ -244,3 +246,71 @@ def delete_map_items():
 
         print("MAP ITEM DELETED >>> {}".format(delete_item))
     return "OK", 200
+
+@main.route('/dial', methods=['GET', 'POST'])
+def dial():
+    print(current_user)
+    print(request.json)
+    number = request.json['number']
+    #user = User.query.filter_by(twilio_account_sid=account_sid).first()
+    print(number)
+    client = Client(current_user.twilio_account_sid, current_user.twilio_auth_token)
+
+    call = client.calls.create(
+        to=number,
+        from_=current_user.twilio_number,
+        url=url_for('main.add_participant', _external=True)
+    )
+
+    return "OK", 200
+
+
+@main.route('/add_participant', methods=['GET', 'POST'])
+def add_participant():
+    account_sid = request.form['AccountSid']
+    user = User.query.filter_by(twilio_account_sid=account_sid).first()
+    resp = VoiceResponse()
+    with resp.gather(numDigits=1, action=url_for('main.join_or_drop', 
+                    _external=True), 
+                    method="POST", 
+                    timeout=5) as g:
+        g.say("You have been invited to {} {}'s conference, press 1 to accept".format(user.first_name, user.last_name))
+
+    return str(resp)
+
+
+@main.route('/join_or_drop', methods=['GET', 'POST'])
+def join_or_drop():
+    account_sid = request.form['AccountSid']
+    user = User.query.filter_by(twilio_account_sid=account_sid).first()
+    digit_pressed = request.form.get('Digits')
+    print(digit_pressed)
+    resp = VoiceResponse()
+    if digit_pressed:
+        print("No Digit Pressed")
+        if digit_pressed == "1":
+            print("1 pressed!")
+            with Dial() as dial:
+                dial.conference('The Marae')
+            
+            resp.append(dial)
+            print(resp)
+    else:
+        resp.hangup()
+
+    return(str(resp))
+
+
+
+@main.route('/mute', methods=['POST'])
+def mute():
+    
+    participant = request.json['participant']
+    muteOn = request.json['muteOn']
+    client = Client(current_user.twilio_account_sid, current_user.twilio_auth_token)
+
+    participant = client.conferences('The Marae') \
+                    .participants(participant) \
+                    .update(muted=muteOn)
+
+    return participant.muted, 200

@@ -23,7 +23,7 @@
                     </button>
             </div>
         </form>
-        <table v-if="conferenceParticipants.length>1" class="ui celled padded table">
+        <table v-if="conferenceParticipants.length>0" class="ui celled striped padded table">
             <thead>
                 <tr>
                     <th>Speaking?</th>
@@ -32,10 +32,10 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(participant, index) in conferenceParticipants" :class="{ negative: participant.muted }">
-                    <td><i v-if="participant.speaking" class="comment icon"></i></td>
+                <tr v-for="(participant, index) in conferenceParticipants" :class="{ negative: participant.muted, positive: participant.speaking, disabled: participant.dropped }">
+                    <td class="center aligned"><i v-if="participant.speaking" class="comment large green icon"></i></td>
                     <td>{% raw %}{{ participant.participantNumber }}{% endraw %}</td>
-                    <td><i @click="muteParticipant(index)" class="circular red mute icon"></i></td>
+                    <td><i @click="muteParticipant(index)" class="circular red mute icon" :class="{ disabled: participant.dropped, inverted: participant.muted }"></i></td>
                 </tr>
             </tbody>
         </table>
