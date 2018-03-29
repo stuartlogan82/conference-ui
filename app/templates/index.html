@@ -2,9 +2,11 @@
 {% block title %}Conference UI{% endblock %}
 {% block page_content %}
 <div class="ui raised very padded text container segment" id="active-conference">
-    <h1 class="ui header">Hello, {% if current_user.is_authenticated %}{{ current_user.first_name }}{% else %} Stranger{% endif %}!</h1>
+     {% if current_user.is_authenticated %}
+    <h1 class="ui header">Kia Ora, {{ current_user.first_name }}!</h1>
     <div class="ui segment raised">
-        <h1>Active Conference</h1>
+        <h2 v-if="conferenceParticipants.length<1" class="ui center aligned header">No Active Conference
+        <h2 v-else class="ui header">Active Conference</h2>
         <form class="ui form" name="add" v-on:submit.prevent>
 
 
@@ -20,7 +22,7 @@
                     </button>
             </div>
         </form>
-        <table class="ui celled padded table">
+        <table v-if="conferenceParticipants.length>1" class="ui celled padded table">
             <thead>
                 <tr>
                     <th>Speaking?</th>
@@ -38,7 +40,7 @@
         </table>
     </div>
     <div class="ui segment raised">
-        <h2>Previous Conferences</h2>
+        <h2 class="ui header">Previous Conferences</h2>
         <div class="ui accordion" v-for="(conference, index) in previousConferences">
             <div class="title">
                 <i class="dropdown icon"></i> {% raw %}{{conference.friendlyName}}{% endraw %}
@@ -49,6 +51,15 @@
             </div>
         </div>
     </div>
+    {% else %}
+    <h1 class="ui header">Kia Ora, stranger!</h1>
+    <h3 class="ui header">Welcome to the Marae</h3>
+    <p>In New Zealand, when Maori people need to have a meeting, they go to the Marae. Today it's not always convenient to have everyone in the same place. Now you can take control of your Twilio conferences and host them in this virtual Marae.</p>
+    <p>If you already have a Twilio account, click on register below and join the whanau</p>
+    <div>
+        <a class="ui huge fluid green button" href="{{ url_for('auth.register') }}">Register!</a>
+    </div>
+    {% endif %}
 </div>
 
 {% endblock %}

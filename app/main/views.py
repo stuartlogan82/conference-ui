@@ -44,7 +44,7 @@ def join_conference():
         greeting = response.say('You are entering {}\'s Conference Room'.format(user.first_name))
     dial.conference('The Marae',
                     status_callback=url_for('main.parse_events', _external=True),
-                    status_callback_event='start end join leave mute hold')
+                    status_callback_event='start end join leave mute hold speaker')
     response.append(dial)
     print(str(response))
     return str(response)
@@ -152,6 +152,18 @@ def parse_events():
 
     elif event == 'participant-leave':
         print("{} >>> LEFT THE CONFERENCE!".format(call_sid))
+        participant = Participant.query.filter_by(
+            call_sid=call_sid).first()
+        print("PARTICIPANT >>> ")
+        print(participant)
+        client = Client(user.twilio_account_sid,
+                        user.twilio_auth_token)
+        call = client.calls(call_sid).fetch()
+        print("DURATION >>> ")
+        print(call.duration)
+        participant.duration = call.duration
+        db.session.add(participant)
+        db.session.commit()
         current_data = client.sync.services(TWILIO_SYNC_SERVICE_SID) \
             .sync_maps(TWILIO_SYNC_MAP_SID) \
             .sync_map_items(call_sid) \

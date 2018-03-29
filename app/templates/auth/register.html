@@ -106,16 +106,29 @@
     </div>
     <p>You'll need to have a Twilio Account to make use of the Marae. If you 
         don't have one, please head to <a href="https://www.twilio.com/try-twilio">Try Twilio</a> and come back when you're done</p>
+        <p>If you have an account, but don't have a number, you can click Buy Number below and we'll pick one at random! This will charge your account and can't be reversed! UK NUMBERS ONLY AT THIS TIME</p>
         <form class="ui form" method="POST">
-            {{ twilio_form.hidden_tag() }}
-            
-            {{ with_errors(twilio_form.twilio_sid) }}
+             {{ twilio_form.hidden_tag() }}
+            <div class="field">
+                {{ twilio_form.twilio_sid.label }} {{ twilio_form.twilio_sid(**{'v-model':'sid'}) }}
+            </div>
+            <div class="field">
+                {{ twilio_form.twilio_token.label }} {{ twilio_form.twilio_token(**{'v-model':'authToken'}) }}
+            </div>
+            <div class="field">
+                {{ twilio_form.twilio_phone.label }} {{ twilio_form.twilio_phone(**{'v-model':'number'}) }}
+            </div>
 
-            {{ with_errors(twilio_form.twilio_token) }}
-            
-            {{ with_errors(twilio_form.twilio_phone) }}
-
-             {{ twilio_form.submit(class='ui button') }}
+            <div class="inline fields">
+                <div class="field">{{ twilio_form.submit(class='ui primary button') }}</div>
+                <div class="field">
+                    <div class="ui button" @click="testCall">Test Settings</div>
+                </div>
+                <div class="field">
+                    <div class="ui button" @click="buyNumber">Buy a Number</div>
+                </div>
+            </div>
+            <div v-if="message" class="ui message">{% raw %}{{ message }}{% endraw %}</div>
         </form>
     </div>
 </div>
@@ -129,7 +142,7 @@
         data: {
             steps: ['Personal Details', 'Twilio Settings', 'Confirm'],
             step: "{{ step }}",
-            message: 'Let\'s make sure everything is in order. We\'ll make a test call to your mobile with the credentials above. Make sure they\'re yours!',
+            message: '',
             sid: "{{ current_user.twilio_account_sid }}",
             authToken: "{{ current_user.twilio_auth_token }}",
             number: "{{current_user.twilio_number}}"
@@ -149,8 +162,20 @@
                     }).catch(function (error) {
                         console.log(error);
                         vm.message = error;
-                    })
+                    });
 
+            },
+            buyNumber: function() {
+                var vm = this;
+                axios.post('/auth/buy_number')
+                .then(function(response) {
+                    console.log(response);
+                    vm.number = response.data;
+                    vm.message = 'Number purchased and added to your account!'
+                }).catch(function (error) {
+                    console.log(error);
+                    vm.message = error;
+                });
             }
         }
     })

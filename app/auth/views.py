@@ -25,8 +25,7 @@ def before_request():
         and request.endpoint \
         and request.endpoint[:5] != 'auth.' \
         and request.endpoint != 'static':
-        twilio_form = ConferenceSettingsForm()
-        return(redirect(url_for('auth.register', step='1', twilio_form=twilio_form)))
+        return(redirect(url_for('auth.register', step="2")))
 
 @auth.route('/unconfirmed', methods=['GET', 'POST'])
 def unconfirmed():
@@ -110,6 +109,9 @@ def resend_authy():
 def register():
     form = RegistrationForm()
     twilio_form = ConferenceSettingsForm()
+    print(current_user)
+    print(request.args.get('step'))
+    
     if form.validate_on_submit():
         user = User(email=form.email.data,
                     first_name=form.first_name.data,
@@ -124,7 +126,31 @@ def register():
         flash('Registration Successful, you may now log in!')
         
         return redirect(url_for('auth.login'))
-    return render_template('auth/register.html', form=form, twilio_form=twilio_form,step='0')
+    if twilio_form.validate_on_submit():
+        print('Submitting Twilio Form!')
+        current_user.twilio_account_sid = twilio_form.twilio_sid.data
+        current_user.twilio_auth_token = twilio_form.twilio_token.data
+        current_user.twilio_number = twilio_form.twilio_phone.data
+        db.session.add(current_user)
+        db.session.commit()
+
+        flash('Twilio Settings Updated! Setting up your number for conferencing!')
+        conference = current_user.configure_conference()
+        if conference:
+            flash('Conference URL successfully configured')
+        else:
+            flash('Error creating conference, contact Administrator')
+        sync_map = current_user.configure_sync_map()
+        if sync_map:
+            flash('Sync Map Created! SID: {}'.format(current_user.sync_map_sid))
+        else:
+            flash('Sync Map failed to create')
+       
+        flash('Twilio Settings Confirmed!')
+        return redirect(url_for('main.index'))
+    if request.args.get('step') == '2':
+        return render_template('auth/register.html', form=form, twilio_form=twilio_form, step='2')
+    return render_template('auth/register.html', form=form, twilio_form=twilio_form, step='0')
 
 @auth.route('/settings', methods=['GET', 'POST'])
 @login_required
@@ -200,3 +226,18 @@ def token():
     token.add_grant(sync_grant)
     # Return token info as JSON
     return jsonify(identity=identity, token=token.to_jwt().decode('utf-8'))
+
+@auth.route('/buy_number', methods=['POST'])
+@login_required
+def buy_number():
+    print(current_user)
+    client = Client(current_user.twilio_account_sid,
+                    current_user.twilio_auth_token)
+    numbers = client.available_phone_numbers("GB") \
+                    .local \
+                    .list(voice_enabled=True, sms_enabled=True)
+    number = client.incoming_phone_numbers \
+                .create(phone_number=numbers[0].phone_number)
+
+    print(numbers[0].phone_number)
+    return numbers[0].phone_number

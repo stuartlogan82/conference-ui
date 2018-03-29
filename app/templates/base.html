@@ -22,7 +22,7 @@
         </div>
         <div class="right menu">
             {% if current_user.is_authenticated %}
-            <div class="item"><a class="ui small header"><i class="users icon"></i>My Conferences</a></div>
+            <div class="item"><a class="ui small header" href="{{ url_for('main.index') }}"><i class="users icon"></i>My Conferences</a></div>
             <div class="item"><a class="ui small header" href="{{ url_for('auth.settings') }}"><i class="cog icon"></i>Settings</a></div>
             <div class="item">
                 <div>

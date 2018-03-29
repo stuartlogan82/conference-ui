@@ -44,8 +44,8 @@ class Conference(db.Model):
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(64), unique=True, index=True)
-    last_name = db.Column(db.String(64), unique=True, index=True)
+    first_name = db.Column(db.String(64), index=True)
+    last_name = db.Column(db.String(64), index=True)
     email = db.Column(db.String(64), unique=True, index=True)
     country_code = db.Column(db.String(16))
     phone = db.Column(db.String(32), unique=True)
