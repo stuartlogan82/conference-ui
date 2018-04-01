@@ -235,12 +235,13 @@ def dial():
 @app.route('/mute', methods=['POST'])
 def mute():
     participant = request.json['participant']
-    muteOn = request.json['muteOn']
-    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+    mute_on = request.json['muteOn']
+    conf_sid = request.json['conferenceSid']
+    client = Client(current_user.twilio_account_sid, current_user.twilio_auth_token)
 
     participant = client.conferences('StusConference') \
                     .participants(participant) \
-                    .update(muted=muteOn)
+                    .update(muted=mute_on)
 
     return participant.muted, 200
 

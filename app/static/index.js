@@ -9,6 +9,7 @@ var app = new Vue({
         newParticipantNumber: '',
         conferenceParticipants: [],
         currentConferenceMap: syncMapSid,
+        currentConferenceSid: '',
         previousConferences: [
             {
                 confSid: "CF05u757673033006979",
@@ -31,6 +32,7 @@ var app = new Vue({
             console.log(data);
             console.log(data.items[0].descriptor.data);
             var self = this;
+            currentConferenceSid = data.items[0].descriptor.data.conferenceSid
             var participant = {};
             for (let i = 0; i < data.items.length; i++) {
                 participant['callSid'] = data.items[i].descriptor.data['callSid'];
@@ -45,6 +47,7 @@ var app = new Vue({
         },
         syncConferenceMap: function(data) {
             var self = this;
+            self.currentConferenceSid = data.conferenceSid
             var participant = {};
             console.log("DATA >>> ", data)
             participant['callSid'] = data.callSid;
@@ -86,9 +89,11 @@ var app = new Vue({
             console.log(this.conferenceParticipants[index].callSid);
             muteOn = !this.conferenceParticipants[index].muted;
             participant = this.conferenceParticipants[index].callSid;
+            conferenceSid = this.currentConferenceSid;
             payload = {
                 muteOn: muteOn,
-                participant: participant
+                participant: participant,
+                conferenceSid: conferenceSid
             };
             axios.post('/mute', payload).
             then(function(response) {

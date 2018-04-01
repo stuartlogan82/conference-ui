@@ -81,6 +81,7 @@ def parse_events():
         print("CALL DETAILS {}".format(call.from_formatted))
         participant_number = call.from_formatted if call.direction == "inbound" else call.to_formatted
         data = {
+            "conferenceSid": conference_sid,
             "callSid": call_sid,
             "participantNumber": participant_number,
             "direction": call.direction,
@@ -287,7 +288,7 @@ def join_or_drop():
     print(digit_pressed)
     resp = VoiceResponse()
     if digit_pressed:
-        print("No Digit Pressed")
+        print("Digit Pressed")
         if digit_pressed == "1":
             print("1 pressed!")
             with Dial() as dial:
@@ -306,11 +307,12 @@ def join_or_drop():
 def mute():
     
     participant = request.json['participant']
-    muteOn = request.json['muteOn']
+    mute_on = request.json['muteOn']
+    conf_sid = request.json['conferenceSid']
     client = Client(current_user.twilio_account_sid, current_user.twilio_auth_token)
 
-    participant = client.conferences('The Marae') \
+    participant = client.conferences(conf_sid) \
                     .participants(participant) \
-                    .update(muted=muteOn)
+                    .update(muted=mute_on)
 
     return participant.muted, 200
