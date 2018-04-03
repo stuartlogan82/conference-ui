@@ -11,20 +11,16 @@ var app = new Vue({
         currentConferenceMap: syncMapSid,
         currentConferenceSid: '',
         message: '',
-        previousConferences: [
-            {
-                confSid: "CF05u757673033006979",
-                friendlyName: "StusConference",
-                participants: ["+447475737643", "+447475863519"],
-                duration: 500
-            },
-            {
-                confSid: "CF75849304958634",
-                friendlyName: "StusConference",
-                participants: ["+447475737643", "+447475863523"],
-                duration: 300
-            }
-        ],
+        previousConferences: [{
+            'name': 'The MArae',
+            'dateCreated': 'Today',
+            'participants': [{
+                    'number': '1234'
+                },
+                {
+                    'number': '5678'
+                }]
+        }]
     },
     methods: {
         syncRetrieveConferenceMap: function(data) {
@@ -128,8 +124,21 @@ var app = new Vue({
                 vm.newParticipant = false;
                 vm.participantNumber = '';
             });
+        },
+        retrievePastConferences: function() {
+            vm = this;
+            axios('/previous_conferences').
+            then(function(response) {
+                console.log(response);
+                vm.previousConferences = response.data;
+            });
         }
-    }
+    },
+    created: function() {
+        this.retrievePastConferences();
+    //     $('.ui.accordion').accordion('refresh');
+
+    },
 })
 
 // Twilio Sync setup
@@ -165,11 +174,12 @@ $.getJSON('/auth/token?identity=' + tokenUserId, function (tokenResponse) {
 
         map.on('itemRemoved', function(item) {
             console.log(item);
-            app.removeConferenceParticipant(item)
+            app.removeConferenceParticipant(item);
+            app.retrievePastConferences();
         });
     });
 })
 
 $('.ui.accordion')
-  .accordion()
+  .accordion('debug: true')
 ;

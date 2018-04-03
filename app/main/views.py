@@ -1,5 +1,5 @@
 import json
-from flask import render_template, session, redirect, url_for, current_app, request
+from flask import render_template, session, redirect, url_for, current_app, request, jsonify
 from flask_login import login_required, current_user
 from . import main
 from .forms import NameForm
@@ -9,7 +9,7 @@ from ..models import Conference as UserConference
 from ..email import send_email
 from twilio.twiml.voice_response import Conference, Dial, VoiceResponse, Say, Hangup
 from twilio.rest import Client
-
+from pprint import pprint
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
@@ -331,3 +331,30 @@ def drop():
         .update(status="completed")
 
     return "Participant dropped!", 200
+
+@main.route('/previous_conferences', methods=['GET', 'POST'])
+def previous_conferences():
+    conference_array = []
+    conferences = current_user.conferences.order_by(UserConference.date_created.desc()).limit(5).all()
+
+    for conference in conferences:
+        new_conf = {
+            'id': conference.id,
+            'callSid': conference.call_sid,
+            'name': conference.name,
+            'dateCreated': conference.date_created,
+            'participants': [],
+
+        }
+        for participant in conference.participants:
+            pprint((participant.number))
+            new_participant = {
+                'id': participant.id,
+                'number': participant.number,
+                'duration': participant.duration,
+                'callSid': participant.call_sid
+            }
+            new_conf['participants'].append(new_participant)
+        conference_array.append(new_conf)
+    json.dumps(conference_array)
+    return jsonify(conference_array), 200

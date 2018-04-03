@@ -11,16 +11,22 @@
         <form class="ui form" name="add" v-on:submit.prevent>
 
 
-            <button class="ui button" v-on:click="newParticipant = !newParticipant">
+            <div class="ui button" v-on:click="newParticipant = !newParticipant" v-if="!newParticipant">
                     <i class="icon user"></i>
                     Add Participant
-                </button>
+            </div>
+            <div class="ui negative button" v-on:click="newParticipant = !newParticipant" v-if="newParticipant">
+                <i class="icon cancel"></i> Cancel
+            </div>
+
             <div v-if="newParticipant">
-                <label>Participant Number</label>
-                <input type="text" v-model="newParticipantNumber">
-                <button class="ui button" v-on:click="dialParticipant">
-                        <i class="icon user"></i>Dial
-                    </button>
+                
+                <div class="field"><label>Participant Number</label></div>
+                <div class="field"><input type="text" v-model="newParticipantNumber"></div>
+                <div class="ui positive button" v-on:click="dialParticipant">
+                        <i class="icon phone"></i>Dial
+                    </div>
+                   
             </div>
         </form>
         <table v-if="conferenceParticipants.length>0" class="ui celled striped padded table">
@@ -44,13 +50,14 @@
     </div>
     <div class="ui segment raised">
         <h2 class="ui header">Previous Conferences</h2>
-        <div class="ui accordion" v-for="(conference, index) in previousConferences">
-            <div class="title">
-                <i class="dropdown icon"></i> {% raw %}{{conference.friendlyName}}{% endraw %}
-            </div>
-            <div class="content">
-                <p>Duration: {% raw %}{{ conference.duration }}{% endraw %}</p>
-                <p v-for="(participant) in conference.participants">{% raw %}{{ participant }}{% endraw %}</p>
+        <div class="ui accordion">
+            <div v-for="(conference, index) in previousConferences">
+                <div class="title">
+                    <i class="dropdown icon"></i> {% raw %}{{conference.name}} - {{conference.dateCreated }}{% endraw %}
+                </div>
+                <div class="content">
+                        <p v-for="(participant) in conference.participants">{% raw %}{{ participant.number }}{% endraw %}</p>
+                </div>
             </div>
         </div>
     </div>
@@ -74,6 +81,7 @@
 <script>
     var currentUserEmail = '{{ current_user.email }}'
     var syncMapSid = '{{ current_user.sync_map_sid }}'
+    
 </script>
 <script src="/static/index.js"></script>
 {% endblock %}
