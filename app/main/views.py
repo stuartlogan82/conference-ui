@@ -352,6 +352,7 @@ def previous_conferences():
                 'id': participant.id,
                 'number': participant.number,
                 'duration': participant.duration,
+                'direction': participant.direction,
                 'callSid': participant.call_sid
             }
             new_conf['participants'].append(new_participant)

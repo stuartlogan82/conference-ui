@@ -31,7 +31,7 @@
 /* Default Styling */
 .ui.accordion .title:not(.ui) {
   padding: 0.5em 0em;
-  font-family: 'KnockoutONJuniorBantamweight', 'Whitney-Book', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Whitney-Book';
   font-size: 1em;
   color: #0D122B;
 }

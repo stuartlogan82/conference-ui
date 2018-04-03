@@ -50,13 +50,33 @@
     </div>
     <div class="ui segment raised">
         <h2 class="ui header">Previous Conferences</h2>
-        <div class="ui accordion">
+        <div class="ui styled accordion">
             <div v-for="(conference, index) in previousConferences">
                 <div class="title">
                     <i class="dropdown icon"></i> {% raw %}{{conference.name}} - {{conference.dateCreated }}{% endraw %}
                 </div>
                 <div class="content">
-                        <p v-for="(participant) in conference.participants">{% raw %}{{ participant.number }}{% endraw %}</p>
+                <div class="accordion">
+                    <div class="title"><i class="dropdown icon"></i>Participants</div>
+                <div class="content">
+                    <table class="ui basic striped celled small compact table">
+                        <thead>
+                            <tr>
+                                <th>Participant</th>
+                                <th>Direction</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(participant) in conference.participants">
+                                <td>{% raw %}{{ participant.number }}{% endraw %}</td>
+                                <td>{% raw %}{{ participant.direction }}{% endraw %}</td>
+                                <td>{% raw %}{{ participant.duration }}{% endraw %}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                </div>
                 </div>
             </div>
         </div>

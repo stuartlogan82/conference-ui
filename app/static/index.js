@@ -131,7 +131,33 @@ var app = new Vue({
             then(function(response) {
                 console.log(response);
                 vm.previousConferences = response.data;
+            for (var i=0; i < vm.previousConferences.length; i++) {
+                   var time = vm.previousConferences[i].dateCreated;
+                   var moment_time = moment(time).format('LLLL');
+                   vm.previousConferences[i].dateCreated = moment_time;
+                   for (var p = 0; p < vm.previousConferences[i].participants.length; p++) {
+                       var duration = parseInt(vm.previousConferences[i].participants[p].duration);
+                       console.log(duration)
+                       var formatted_duration = vm.SecondsTohhmmss(duration);
+                       vm.previousConferences[i].participants[p].duration = formatted_duration;
+                   }
+                }
+                
+
             });
+        },
+        SecondsTohhmmss : function(totalSeconds) {
+            var hours   = Math.floor(totalSeconds / 3600);
+            var minutes = Math.floor((totalSeconds - (hours * 3600)) / 60);
+            var seconds = totalSeconds - (hours * 3600) - (minutes * 60);
+
+            // round seconds
+            seconds = Math.round(seconds * 100) / 100
+
+            var result = (hours < 10 ? "0" + hours : hours);
+                result += ":" + (minutes < 10 ? "0" + minutes : minutes);
+                result += ":" + (seconds  < 10 ? "0" + seconds : seconds);
+            return result;
         }
     },
     created: function() {
