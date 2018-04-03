@@ -103,7 +103,7 @@ def parse_events():
             db.session.commit()
             user.conferences.append(conference_data)
             conference_id = UserConference.query.filter_by(call_sid=conference_sid).first()
-
+            user.send_sms("Your conference has started! {} is already in The Marae {}".format(participant_number, url_for('main.index', _external=True)))
             
         participant = Participant(
             number=data['participantNumber'],
@@ -315,4 +315,19 @@ def mute():
                     .participants(participant) \
                     .update(muted=mute_on)
 
-    return participant.muted, 200
+    return str(participant.muted), 200
+
+
+@main.route('/drop', methods=['POST'])
+def drop():
+
+    participant = request.json['participant']
+    # drop = request.json['drop']
+    # conf_sid = request.json['conferenceSid']
+    client = Client(current_user.twilio_account_sid,
+                    current_user.twilio_auth_token)
+
+    call = client.calls(participant) \
+        .update(status="completed")
+
+    return "Participant dropped!", 200

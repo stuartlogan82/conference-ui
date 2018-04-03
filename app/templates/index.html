@@ -35,7 +35,9 @@
                 <tr v-for="(participant, index) in conferenceParticipants" :class="{ negative: participant.muted, positive: participant.speaking, disabled: participant.dropped }">
                     <td class="center aligned"><i v-if="participant.speaking" class="comment large green icon"></i></td>
                     <td>{% raw %}{{ participant.participantNumber }}{% endraw %}</td>
-                    <td><i @click="muteParticipant(index)" class="circular red mute icon" :class="{ disabled: participant.dropped, inverted: participant.muted }"></i></td>
+                    <td><i @click="muteParticipant(index)" class="circular red mute icon" :class="{ disabled: participant.dropped, inverted: participant.muted }"></i>
+                    <i @click="dropParticipant(index)" class="circular red thumbs down icon"></i>
+                    </td>
                 </tr>
             </tbody>
         </table>

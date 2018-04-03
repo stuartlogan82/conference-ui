@@ -57,6 +57,7 @@ class User(UserMixin, db.Model):
     authy_user_id = db.Column(db.String)
     twilio_number = db.Column(db.String(32))
     sync_map_sid = db.Column(db.String(64))
+    allow_sms = db.Column(db.Boolean, default=True)
 
 
     @property
@@ -196,7 +197,16 @@ class User(UserMixin, db.Model):
             else:
                 return False
         
-        
+    def send_sms(self, message):
+         client = Client(self.twilio_account_sid, self.twilio_auth_token)
+
+         client.api.account.messages.create(
+             to=self.phone,
+             from_=self.twilio_number,
+             body=message
+         )
+
+         return True
 
     def __repr__(self):
         return '<User %r>' % self.email

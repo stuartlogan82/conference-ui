@@ -10,6 +10,7 @@ var app = new Vue({
         conferenceParticipants: [],
         currentConferenceMap: syncMapSid,
         currentConferenceSid: '',
+        message: '',
         previousConferences: [
             {
                 confSid: "CF05u757673033006979",
@@ -101,6 +102,18 @@ var app = new Vue({
                 console.log('Mute successful!');
             });
             
+        },
+        dropParticipant: function(index) {
+            console.log(this.conferenceParticipants[index].callSid);
+            participant = this.conferenceParticipants[index].callSid;
+            payload = {
+                participant: participant
+            };
+            axios.post('/drop', payload).
+            then(function(response) {
+                console.log(response);
+
+            });
         },
         dialParticipant: function() {
             vm = this;
