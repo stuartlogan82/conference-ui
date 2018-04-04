@@ -235,8 +235,8 @@ def token():
 def buy_number():
     payload = request.get_json()
     print(current_user)
-    account_sid = current_user.twilio_account_sid or payload['twilio_sid']
-    auth_token = current_user.twilio_auth_token or payload['twilio_token']
+    account_sid = payload['twilio_sid']
+    auth_token = payload['twilio_token']
     client = Client(account_sid, auth_token)
     numbers = client.available_phone_numbers("GB") \
                     .local \
