@@ -49,8 +49,7 @@ class TestingConfig(Config):
 class ProductionConfig(Config):
     SQL_ALCHEMY_USERNAME = os.environ.get('SQLALCHEMY_USERNAME')
     SQL_ALCHEMY_PASSWORD = os.environ.get('SQLALCHEMY_PASSWORD')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'postgresql://' + SQL_ALCHEMY_USERNAME + ':' + SQL_ALCHEMY_PASSWORD + '@localhost/' +  'conference_data'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     
     @classmethod
     def init_app(cls, app):
