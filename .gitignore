@@ -100,7 +100,6 @@ ENV/
 .mypy_cache/
 
 .vscode/
-config.py
 Untitled-1
 app/static/semantic/src
 app/static/semantic/tasks
