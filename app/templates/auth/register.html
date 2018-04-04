@@ -171,7 +171,7 @@
                         twilio_sid: this.sid,
                         twilio_token: this.authToken,
                     }
-                axios.post('/auth/buy_number')
+                axios.post('/auth/buy_number', payload)
                 .then(function(response) {
                     console.log(response);
                     vm.number = response.data;
