@@ -32,24 +32,25 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     
-    SQL_ALCHEMY_USERNAME = os.environ.get('SQLALCHEMY_USERNAME')
-    SQL_ALCHEMY_PASSWORD = os.environ.get('SQLALCHEMY_PASSWORD')
+    SQL_ALCHEMY_USERNAME = os.environ.get('SQLALCHEMY_USERNAME') or "astring"
+    SQL_ALCHEMY_PASSWORD = os.environ.get('SQLALCHEMY_PASSWORD') or "astring"
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URI') or \
                 'postgresql://' + SQL_ALCHEMY_USERNAME + ':' + SQL_ALCHEMY_PASSWORD + '@localhost/' +  'conf_data_dev'
     SERVER_NAME = os.environ.get('SERVER_NAME')
 
 class TestingConfig(Config):
     TESTING = True
-    SQL_ALCHEMY_USERNAME = os.environ.get('SQLALCHEMY_USERNAME')
-    SQL_ALCHEMY_PASSWORD = os.environ.get('SQLALCHEMY_PASSWORD')
+    SQL_ALCHEMY_USERNAME = os.environ.get('SQLALCHEMY_USERNAME') or "astring"
+    SQL_ALCHEMY_PASSWORD = os.environ.get('SQLALCHEMY_PASSWORD') or "astring"
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
         'postgresql://' + SQL_ALCHEMY_USERNAME + ':' + SQL_ALCHEMY_PASSWORD + '@localhost/' +  'conf_data_test'
 
 
 class ProductionConfig(Config):
-    SQL_ALCHEMY_USERNAME = os.environ.get('SQLALCHEMY_USERNAME')
-    SQL_ALCHEMY_PASSWORD = os.environ.get('SQLALCHEMY_PASSWORD')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    SQL_ALCHEMY_USERNAME = os.environ.get('SQLALCHEMY_USERNAME') or "astring"
+    SQL_ALCHEMY_PASSWORD = os.environ.get('SQLALCHEMY_PASSWORD') or "astring"
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'postgresql://' + SQL_ALCHEMY_USERNAME + ':' + SQL_ALCHEMY_PASSWORD + '@localhost/' +  'conference_data'
     
     @classmethod
     def init_app(cls, app):
