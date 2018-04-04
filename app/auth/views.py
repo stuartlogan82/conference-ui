@@ -233,13 +233,21 @@ def token():
 @auth.route('/buy_number', methods=['POST'])
 @login_required
 def buy_number():
+    payload = request.get_json()
     print(current_user)
-    client = Client(current_user.twilio_account_sid,
-                    current_user.twilio_auth_token)
+    account_sid = current_user.twilio_account_sid or payload['twilio_sid']
+    auth_token = current_user.twilio_auth_token or payload['twilio_token']
+    client = Client(account_sid, auth_token)
     numbers = client.available_phone_numbers("GB") \
                     .local \
                     .list(voice_enabled=True, sms_enabled=True)
-    
+
     print(numbers[0].phone_number)
+
+    new_number = numbers[0].phone_number
+
+    number = client.incoming_phone_numbers \
+        .create(phone_number=new_number)
+
     return numbers[0].phone_number
 
