@@ -81,6 +81,10 @@
             </div>
         </div>
     </div>
+    
+    </div>
+    
+
     {% else %}
     <h1 class="ui header">Kia Ora, stranger!</h1>
     <h3 class="ui header">Welcome to the Marae</h3>
@@ -98,6 +102,7 @@
 <script src="https://unpkg.com/vue"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="https://media.twiliocdn.com/sdk/js/sync/v0.6/twilio-sync.min.js"></script>
+<script src='https://api.mapbox.com/mapbox-gl-js/v0.44.2/mapbox-gl.js'></script>
 <script>
     var currentUserEmail = '{{ current_user.email }}'
     var syncMapSid = '{{ current_user.sync_map_sid }}'

@@ -10,10 +10,11 @@ from ..email import send_email
 from twilio.twiml.voice_response import Conference, Dial, VoiceResponse, Say, Hangup
 from twilio.rest import Client
 from pprint import pprint
+from datetime import datetime
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    print(current_user)
+    pprint(current_user)
     form = NameForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.name.data).first()
@@ -37,7 +38,7 @@ def index():
 @main.route('/join_conference', methods=['POST'])
 def join_conference():
     for key in request.form:
-        print(key)
+        pprint(key)
     account_sid = request.form['AccountSid']
     user = User.query.filter_by(twilio_account_sid=account_sid).first()
     response = VoiceResponse()
@@ -48,7 +49,7 @@ def join_conference():
                     status_callback=url_for('main.parse_events', _external=True),
                     status_callback_event='start end join leave mute hold speaker')
     response.append(dial)
-    print(str(response))
+    pprint(str(response))
     return str(response)
 
 
@@ -57,28 +58,29 @@ def parse_events():
     account_sid = request.form['AccountSid']
     TWILIO_SYNC_SERVICE_SID = current_app.config['TWILIO_SYNC_SERVICE_SID']
     user = User.query.filter_by(twilio_account_sid=account_sid).first()
-    print(user)
-    print(user.sync_map_sid)
+    pprint(user)
+    pprint(user.sync_map_sid)
     TWILIO_SYNC_MAP_SID = user.sync_map_sid
     request_dict = {}
     request_dict = request.form.to_dict()
-    print(request_dict)
+    pprint(request_dict)
 
     event = request_dict['StatusCallbackEvent']
+    pprint(event)
     if 'CallSid' in request_dict:
         call_sid = request_dict['CallSid']
     else:
         call_sid = None
     conference_sid = request_dict['ConferenceSid']
     muted = False if 'Muted' not in request_dict or request_dict['Muted'] == 'false' else True
-    print(event)
+    pprint(event)
     client = Client(current_app.config['TWILIO_ACCOUNT_SID'],
                     current_app.config['TWILIO_AUTH_TOKEN'])
     if event == 'participant-join':
 
         call = client.calls(call_sid).fetch()
-        print(call)
-        print("CALL DETAILS {}".format(call.from_formatted))
+        pprint(call)
+        pprint("CALL DETAILS {}".format(call.from_formatted))
         participant_number = call.from_formatted if call.direction == "inbound" else call.to_formatted
         data = {
             "conferenceSid": conference_sid,
@@ -182,7 +184,17 @@ def parse_events():
             .update(data=str(data))
         return "OK", 200
     elif event == 'conference-end':
-        
+        print("conference-end!")
+        conference_data = UserConference.query.filter_by(call_sid=conference_sid).first()
+        user = User.query.filter_by(twilio_account_sid=account_sid).first()
+        client = Client(user.twilio_account_sid, user.twilio_auth_token)
+        twilio_conference = client.conferences(conference_sid).fetch()
+        conference_data.region = twilio_conference.region
+        start_time = datetime.strptime(conference_data.date_created, '%Y-%m-%d %H:%M:%S.%f')
+        conference_data.duration = round((datetime.utcnow() - start_time).total_seconds())
+        db.session.add(conference_data)
+        db.session.commit()
+        print(twilio_conference.region)
         delete_map_items()
         return "ITEMS DELETED", 200
     elif event == 'participant-mute':
@@ -335,7 +347,12 @@ def drop():
 @main.route('/previous_conferences', methods=['GET', 'POST'])
 def previous_conferences():
     conference_array = []
-    conferences = current_user.conferences.order_by(UserConference.date_created.desc()).limit(5).all()
+    page = request.args.get('page', 1, type=int)
+    pagination = current_user.conferences.order_by(UserConference.date_created.desc()).paginate(
+        page, per_page=6, error_out=False
+    )
+
+    conferences = pagination.items
 
     for conference in conferences:
         new_conf = {

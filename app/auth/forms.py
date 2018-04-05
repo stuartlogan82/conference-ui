@@ -36,7 +36,7 @@ class RegistrationForm(FlaskForm):
                             EqualTo('password2', message='Passwords must match.')])
     password2 = PasswordField('Confirm password', validators=[Required()])
     country_code = SelectField('Country',
-                            choices=[('+44', 'UK +44'), ('+1', 'US +1')], validators=[Required()])
+                               choices=[('+44', 'UK +44'), ('+1', 'US +1'), ('+49', 'DE +49')], validators=[Required()])
     phone_number = StringField('Phone Number', validators=[Required(),Length(1,15), 
                             Regexp('[0-9]*$', 0, 'Must be numbers only')])
     """twilio_sid = StringField('Twilio Account SID', validators=[

@@ -36,6 +36,8 @@ class Conference(db.Model):
     date_created = db.Column(db.String(64), default=datetime.utcnow, index=True)
     participants = db.relationship('Participant', backref='conferences', lazy='dynamic')
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    duration = db.Column(db.Integer)
+    region = db.Column(db.String)
 
     def __repr__(self):
         return '<Conference %r>' % self.call_sid

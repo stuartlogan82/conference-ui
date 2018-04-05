@@ -11,6 +11,7 @@ var app = new Vue({
         currentConferenceMap: syncMapSid,
         currentConferenceSid: '',
         message: '',
+        page: 1,
         previousConferences: [{
             'name': 'The MArae',
             'dateCreated': 'Today',
@@ -127,7 +128,7 @@ var app = new Vue({
         },
         retrievePastConferences: function() {
             vm = this;
-            axios('/previous_conferences').
+            axios('/previous_conferences?page=' + vm.page).
             then(function(response) {
                 console.log(response);
                 vm.previousConferences = response.data;
