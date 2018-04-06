@@ -47,11 +47,29 @@ def join_conference():
         greeting = response.say('You are entering {}\'s Conference Room'.format(user.first_name))
     dial.conference('The Marae',
                     status_callback=url_for('main.parse_events', _external=True),
-                    status_callback_event='start end join leave mute hold speaker')
+                    status_callback_event='start end join leave mute hold speaker',
+                    record='record-from-start',
+                    recording_status_callback=url_for('main.recording_events', _external=True))
     response.append(dial)
     pprint(str(response))
     return str(response)
 
+@main.route('/recording_events', methods=['POST'])
+def recording_events():
+    account_sid = request.form['AccountSid']
+    conference_sid = request.form['ConferenceSid']
+    url = request.form['RecordingUrl']
+    print(url)
+
+    return "OK", 200
+
+@main.route('/transcription_events', methods=['POST'])
+def transcription_events():
+    request_dict = {}
+    request_dict = request.form.to_dict()
+    pprint(request_dict)
+
+    return "OK", 200
 
 @main.route('/events', methods=['POST'])
 def parse_events():
