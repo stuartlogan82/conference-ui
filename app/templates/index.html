@@ -96,6 +96,16 @@
     {% endif %}
 </div>
 
+<form class="ui form" >
+    <div class="ui calendar" id="calendarTest">
+    <div class="ui input left icon">
+        <i class="calendar icon"></i>
+        <input type="text" placeholder="Date/Time">
+</div>
+</div>
+</form>
+
+
 {% endblock %}
 {% block scripts %}
 {{ super() }}
@@ -106,7 +116,7 @@
 <script>
     var currentUserEmail = '{{ current_user.email }}'
     var syncMapSid = '{{ current_user.sync_map_sid }}'
-    
+    $('#calendarTest').calendar();
 </script>
 <script src="/static/index.js"></script>
 {% endblock %}
