@@ -31,7 +31,7 @@ mccabe==0.6.1
 psycopg2==2.7.4
 psycopg2-binary==2.7.4
 pycparser==2.18
-PyJWT==1.5.3
+PyJWT==2.4.0
 pylint==1.8.2
 PySocks==1.6.8
 python-dateutil==2.6.1
