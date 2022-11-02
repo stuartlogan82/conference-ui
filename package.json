@@ -7,7 +7,7 @@
     "test": "tests"
   },
   "dependencies": {
-    "semantic-ui": "^2.3.0"
+    "semantic-ui": "^2.5.0"
   },
   "devDependencies": {},
   "scripts": {
